@@ -1,5 +1,5 @@
 import type { StreamType, StreamURL, VideoResources } from "#/constants";
-import type { Detection } from "#/lib/drawDetections";
+import { drawDetections, type Detection } from "#/lib/drawDetections";
 import { getStreamName } from "#/lib/getStreamName";
 
 /**
@@ -43,15 +43,21 @@ const createSocket = (streamUrl: StreamURL): { socket: WebSocket; streamName: St
  */
 async function drawFrame(canvas: HTMLCanvasElement, imageBytes: ArrayBuffer) {
   const ctx = canvas.getContext("2d");
-  console.log('Live stream context:', ctx);
   if (!ctx) return;
 
   const blob = new Blob([imageBytes], { type: "image/jpeg" });
   const bitmap = await createImageBitmap(blob);
+  const width = bitmap.width;
+  const height = bitmap.height;
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
   bitmap.close();
+
+  return {
+    width,
+    height
+  }
 }
 
 /**
