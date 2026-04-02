@@ -15,17 +15,17 @@ export interface Detection {
 
 function drawDetections(
   canvas: HTMLCanvasElement,
-  detections: Detection[]
+  detections: Detection[],
+  width: number = 1,
+  height: number = 1
 ) {
-  console.log(canvas, detections);
-  console.log("getContext:", canvas.getContext("2d"));
+
   const ctx = canvas.getContext("2d");
-  console.log(`Drawing ${detections.length} detections on canvas ${!ctx ? "null" : "valid"} context`);
   if (!ctx || !detections?.length) return;
 
   // Масштабування по canvas
-  const scaleX = canvas.width / (canvas.width || 1);
-  const scaleY = canvas.height / (canvas.height || 1);
+  const scaleX = canvas.width / width;
+  const scaleY = canvas.height / height;
 
   detections.forEach((det) => {
     const { x, y, width, height } = det.bbox;
@@ -35,8 +35,6 @@ function drawDetections(
     const sw = width * scaleX;
     const sh = height * scaleY;
 
-    console.log(`Drawing detection: ${det.label} at (${sx}, ${sy}, ${sw}, ${sh}) with confidence ${det.confidence}`);
-    console.log(`Canvas size: ${canvas.width}x${canvas.height}, Original bbox: (${x}, ${y}, ${width}, ${height})`);
     // Контур bbox
     ctx.strokeStyle = "lime";
     ctx.lineWidth = 2;

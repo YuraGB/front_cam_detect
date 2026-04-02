@@ -32,43 +32,35 @@ export const useCanvasContainer = () => {
       socket.binaryType = "arraybuffer";
       socket.onmessage = async(event) => {
         try {         
-          console.log(`Received message on ${streamName} with data size: ${event.data.byteLength} bytes`);
           const { cameraId, imageBytes, detections } = formatBufferData({ data: event.data });
           if (!cameraId) {
             console.error("Camera ID not found in message data");
             return;
           }
 
-          console.log(`Processing frame for camera ${cameraId} on stream ${streamName}`);
           if (!videoResourcesRef.current[cameraId]) {
 
             setCameras((prev) => {
               if (prev.includes(cameraId)) return prev;
               return [...prev, cameraId];
             });
-          }
+            }
 
-        
-        const canvas = videoResourcesRef.current[cameraId]?.[streamName];
-        if(!canvas) {
-          console.warn(`Canvas not found for camera ${cameraId} and stream ${streamName}`);
-          return
-        } 
+          
+          const canvas = videoResourcesRef.current[cameraId]?.[streamName];
+          if(!canvas) {
+            console.warn(`Canvas not found for camera ${cameraId} and stream ${streamName}`);
+            return
+          }    
 
-      if (streamName === "detectionStream") {
-        detectionsRef.current[cameraId] = detections || [];
-      }
+          if (streamName === "liveStream") await drawFrame(canvas, imageBytes);
 
-     if (streamName === "liveStream") {
-  drawFrame(canvas, imageBytes);
-
-  const detections = detectionsRef.current[cameraId];
-  if (detections?.length) {
-    drawDetections(canvas, detections);
-  }
-}
-
-
+          if (streamName === "detectionStream") {
+            detectionsRef.current[cameraId] = detections;
+            const dimensions = await drawFrame(canvas, imageBytes);
+            console.log('Frame drawn, dimensions:', dimensions);
+            drawDetections(canvas, detections, dimensions?.width, dimensions?.height);
+          }  
         } catch (error) {
           console.error("Error processing WebSocket message:", error);
         }   
