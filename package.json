@@ -6,14 +6,15 @@
     "#/*": "./src/*"
   },
   "scripts": {
- "dev": "vite dev --port 3000 --open",
-    "build": "vite build && cp instrument.server.mjs .output/server",
+    "dev": "vite dev --port 3000 --open",
+    "build": "vite build && node -e \"require('node:fs').copyFileSync('instrument.server.mjs','dist/server/instrument.server.mjs')\"",
     "preview": "vite preview",
+    "prestart": "npm run build",
     "test": "vitest run",
     "lint": "eslint",
     "format": "prettier --check .",
     "check": "prettier --write . && eslint --fix",
-    "start": "node --import ./.output/server/instrument.server.mjs .output/server/index.mjs"
+    "start": "dotenv -e .env.local -- vite preview --host --port 3000"
   },
   "dependencies": {
     "@sentry/tanstackstart-react": "^10.42.0",
