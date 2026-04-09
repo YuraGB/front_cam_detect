@@ -9,6 +9,7 @@ type PendingFrame = {
   cameraId: string;
   streamName: StreamType;
   imageBytes: ArrayBuffer;
+  imageType: string;
   detections: Detection[];
   timestamp: number | null;
 };
@@ -61,14 +62,17 @@ const createStreamControl = (): StreamConnectionControl => ({
 const emptyConnectionState: Record<StreamType, StreamHealth> = {
   liveStream: "disconnected",
   detectionStream: "disconnected",
+  fileFrames: "disconnected",
 };
 
 export type CameraStreamStats = Partial<Record<StreamType, StreamMetric>>;
+export type CameraStreamAvailability = Partial<Record<StreamType, true>>;
 
 export const useCanvasContainer = () => {
   const wsRef = useRef<Partial<Record<StreamType, WebSocket>>>({});
   const videoResourcesRef = useRef<VideoResources>({});
   const knownCamerasRef = useRef<Set<string>>(new Set());
+  const availableStreamsRef = useRef<Partial<Record<string, CameraStreamAvailability>>>({});
   const pendingFramesRef = useRef<Partial<Record<string, PendingFrame>>>({});
   const renderingRef = useRef<Record<string, boolean>>({});
   const metricsRef = useRef<Partial<Record<string, Partial<Record<StreamType, StreamMetricMutable>>>>>({});
@@ -77,9 +81,11 @@ export const useCanvasContainer = () => {
   const connectionControlsRef = useRef<Record<StreamType, StreamConnectionControl>>({
     liveStream: createStreamControl(),
     detectionStream: createStreamControl(),
+    fileFrames: createStreamControl(),
   });
 
   const [cameras, setCameras] = useState<string[]>([]);
+  const [cameraStreams, setCameraStreams] = useState<Record<string, CameraStreamAvailability>>({});
   const [streamStats, setStreamStats] = useState<Record<string, CameraStreamStats>>({});
   const [connectionState, setConnectionState] = useState<Record<StreamType, StreamHealth>>(emptyConnectionState);
 
@@ -125,7 +131,7 @@ export const useCanvasContainer = () => {
           return;
         }
 
-        if (frame.streamName === "liveStream" && frame.imageBytes.byteLength === 0) {
+        if (frame.imageBytes.byteLength === 0) {
           return;
         }
 
@@ -143,18 +149,13 @@ export const useCanvasContainer = () => {
 
         void (async () => {
           try {
-            if (frame.streamName === "liveStream") {
-              const liveDimensions = await drawFrame(canvas, frame.imageBytes);
-              if (!liveDimensions) {
-                return;
-              }
-            } else {
-              const detectionDimensions = await drawFrame(canvas, frame.imageBytes);
-              if (!detectionDimensions) {
-                return;
-              }
+            const dimensions = await drawFrame(canvas, frame.imageBytes, frame.imageType);
+            if (!dimensions) {
+              return;
+            }
 
-              drawDetections(canvas, frame.detections, detectionDimensions.width, detectionDimensions.height);
+            if (frame.streamName === "detectionStream") {
+              drawDetections(canvas, frame.detections, dimensions.width, dimensions.height);
             }
 
             const metric = ensureMetricRef(frame.cameraId, frame.streamName);
@@ -227,9 +228,9 @@ export const useCanvasContainer = () => {
       socket.onmessage = (event) => {
         try {
           streamControl.lastMessageAt = Date.now();
-          const { cameraId, imageBytes, detections, timestamp } = formatBufferData(
+          const { cameraId, imageBytes, detections, timestamp, imageType } = formatBufferData(
             { data: event.data },
-            { includeImageBytes: true }
+            { includeImageBytes: true, debugLabel: streamName }
           );
 
           if (!cameraId) {
@@ -239,6 +240,19 @@ export const useCanvasContainer = () => {
           if (!knownCamerasRef.current.has(cameraId)) {
             knownCamerasRef.current.add(cameraId);
             setCameras((prev) => [...prev, cameraId]);
+          }
+
+          const nextAvailableStreams = availableStreamsRef.current[cameraId] ?? {};
+          if (!availableStreamsRef.current[cameraId]) {
+            availableStreamsRef.current[cameraId] = nextAvailableStreams;
+          }
+
+          if (!nextAvailableStreams[streamName]) {
+            nextAvailableStreams[streamName] = true;
+            setCameraStreams((prev) => ({
+              ...prev,
+              [cameraId]: { ...nextAvailableStreams },
+            }));
           }
 
           const key = `${cameraId}::${streamName}`;
@@ -251,6 +265,7 @@ export const useCanvasContainer = () => {
             cameraId,
             streamName,
             imageBytes,
+            imageType,
             detections,
             timestamp,
           };
@@ -368,6 +383,7 @@ export const useCanvasContainer = () => {
 
   return {
     cameras,
+    cameraStreams,
     registerCanvas,
     streamStats,
     connectionState,

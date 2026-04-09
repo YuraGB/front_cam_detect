@@ -1,3 +1,4 @@
+
 export interface BBox {
   x: number;
   y: number;
@@ -11,64 +12,45 @@ export interface Detection {
   confidence: number;
 }
 
-type DrawDetectionsOptions = {
-  drawLabels?: boolean;
-  maxBoxes?: number;
-};
-
-const labelWidthCache = new Map<string, number>();
 
 function drawDetections(
   canvas: HTMLCanvasElement,
   detections: Detection[],
-  width: number = 1,
-  height: number = 1,
-  options?: DrawDetectionsOptions
+  width?: number ,
+  height?: number
 ) {
+
   const ctx = canvas.getContext("2d");
-  if (!ctx || detections.length === 0) return;
+  if (!ctx || !detections?.length) return;
 
-  const drawLabels = options?.drawLabels ?? true;
-  const maxBoxes = options?.maxBoxes ?? 80;
+  // Масштабування по canvas
+  const scaleX = canvas.width / (width || 1);
+  const scaleY = canvas.height / (height || 1);
 
-  const scaleX = canvas.width / width;
-  const scaleY = canvas.height / height;
-  const total = Math.min(detections.length, maxBoxes);
-
-  ctx.strokeStyle = "lime";
-  ctx.lineWidth = 2;
-  ctx.font = "16px Arial";
-  ctx.textBaseline = "top";
-
-  for (let i = 0; i < total; i += 1) {
-    const det = detections[i];
-    const { x, y, width: boxWidth, height: boxHeight } = det.bbox;
+  detections.forEach((det) => {
+    const { x, y, width, height } = det.bbox;
 
     const sx = x * scaleX;
     const sy = y * scaleY;
-    const sw = boxWidth * scaleX;
-    const sh = boxHeight * scaleY;
+    const sw = width * scaleX;
+    const sh = height * scaleY;
 
+    // Контур bbox
+    ctx.strokeStyle = "lime";
+    ctx.lineWidth = 2;
     ctx.strokeRect(sx, sy, sw, sh);
 
-    if (!drawLabels) {
-      continue;
-    }
-
+    // Label
     const label = `${det.label} ${(det.confidence * 100).toFixed(1)}%`;
-    let textWidth = labelWidthCache.get(label);
-    if (textWidth === undefined) {
-      textWidth = ctx.measureText(label).width;
-      labelWidthCache.set(label, textWidth);
-    }
+    ctx.font = "16px Arial";
+    const textWidth = ctx.measureText(label).width;
 
-    const labelY = Math.max(0, sy - 20);
     ctx.fillStyle = "rgba(0,0,0,0.6)";
-    ctx.fillRect(sx, labelY, textWidth + 6, 20);
+    ctx.fillRect(sx, sy - 20, textWidth + 6, 20);
 
     ctx.fillStyle = "lime";
-    ctx.fillText(label, sx + 3, labelY + 2);
-  }
+    ctx.fillText(label, sx + 3, sy - 5);
+  });
 }
 
-export { drawDetections };
+export { drawDetections }
