@@ -1,12 +1,19 @@
 import type { StreamType, StreamURL } from "#/constants";
 
 const getStreamName = (streamUrl: StreamURL): StreamType => {
- const streamName: StreamType | null = new URL(streamUrl).searchParams.get("type")
-  if (!streamName) {
-    throw new Error(`Invalid stream URL: ${streamUrl}`);
+  const url = new URL(streamUrl);
+  const streamName = url.searchParams.get("type");
+  const pathname = url.pathname.replace(/\/+$/, "");
+
+  if (streamName === "liveStream" || streamName === "detectionStream") {
+    return streamName;
   }
-  
-  return streamName;
-}
+
+  if (streamName === "fileFrames" || pathname.endsWith("/file-frames")) {
+    return "fileFrames";
+  }
+
+  throw new Error(`Invalid stream URL: ${streamUrl}`);
+};
 
 export { getStreamName }

@@ -4,22 +4,37 @@ import { useCanvasContainer } from "./hooks/useCanvasContainer";
 const streamTitles: Record<StreamType, string> = {
   liveStream: "Live Stream",
   detectionStream: "Detection Stream",
+  fileFrames: "File Frames",
 };
 
-const streamOrder: StreamType[] = ["liveStream", "detectionStream"];
+const streamOrder: StreamType[] = ["liveStream", "detectionStream", "fileFrames"];
+
+const getVisibleStreams = (availableStreams: Partial<Record<StreamType, true>>): StreamType[] => {
+  if (availableStreams.liveStream) {
+    return ["liveStream", "detectionStream"];
+  }
+
+  if (availableStreams.fileFrames) {
+    return ["fileFrames"];
+  }
+
+  return streamOrder.filter((streamName) => availableStreams[streamName]);
+};
 
 export const CanvasContainer = () => {
-  const { cameras, registerCanvas, streamStats, connectionState } = useCanvasContainer();
+  const { cameras, cameraStreams, registerCanvas, streamStats, connectionState } = useCanvasContainer();
 
   return (
     <div style={{ textAlign: "center", marginTop: 20 }}>
       <h1>Canvas Video Stream</h1>
       {cameras.map((cameraId) => {
+        const visibleStreams = getVisibleStreams(cameraStreams[cameraId] ?? {});
+
         return (
           <div key={cameraId} style={{ marginBottom: 40 }}>
             <h2>Camera ID: {cameraId}</h2>
 
-            {streamOrder.map((streamName) => {
+            {visibleStreams.map((streamName) => {
               const stats = (streamStats[cameraId] ?? {})[streamName];
               const status = connectionState[streamName];
 
