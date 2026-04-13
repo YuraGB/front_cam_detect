@@ -196,7 +196,8 @@ export const useCanvasContainer = () => {
 
     const connectStream = (streamUrl: StreamURL) => {
       const { socket, streamName } = createSocket(streamUrl);
-      console.log(`Connecting to ${streamName} at ${streamUrl}...`);
+
+
       const streamControl = connectionControlsRef.current[streamName];
 
       streamControl.ws = socket;
@@ -212,9 +213,8 @@ export const useCanvasContainer = () => {
         streamControl.reconnectAttempt = 0;
         streamControl.lastMessageAt = Date.now();
 
-        console.log(`WebSocket connection opened for ${streamName}`);
         updateConnectionState(streamName, "connected");
-        console.log(`Connected to ${streamName} at ${streamUrl}`);
+
 
         if (streamControl.heartbeatTimer !== null) {
           window.clearInterval(streamControl.heartbeatTimer);
