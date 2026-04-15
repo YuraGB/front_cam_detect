@@ -5,7 +5,7 @@ const getStreamName = (streamUrl: StreamURL): StreamType => {
   const streamName = url.searchParams.get("type");
   const pathname = url.pathname.replace(/\/+$/, "");
 
-  if (streamName === "liveStream" || streamName === "detectionStream") {
+  if (streamName === "liveStream" || streamName === "detectionStream" || streamName === "webrtc") {
     return streamName;
   }
 
