@@ -1,5 +1,6 @@
 import { HEARTBEAT_INTERVAL_MS, RECONNECT_BASE_DELAY_MS, RECONNECT_MAX_DELAY_MS, STREAM_INACTIVITY_TIMEOUT_MS, STREAM_URLS, type StreamType, type StreamURL } from "#/constants";
 import { createSocket } from "#/lib/utilFunctions";
+import type { StreamConnectionControl, StreamHealth } from "#/types";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 const createStreamControl = (): StreamConnectionControl => ({
@@ -51,7 +52,6 @@ export const useWebsocket = () => {
 
             streamControl.ws = socket;
             wsRef.current[streamName] = socket;
-            socket.binaryType = "arraybuffer";
 
             updateConnectionState(
                 streamName,
@@ -70,6 +70,9 @@ export const useWebsocket = () => {
                 }
 
                 streamControl.heartbeatTimer = window.setInterval(() => {
+
+                if (streamName === "webrtc") return;
+
                 const now = Date.now();
                 if (now - streamControl.lastMessageAt > STREAM_INACTIVITY_TIMEOUT_MS) {
                     updateConnectionState(streamName, "stalled");
@@ -78,9 +81,16 @@ export const useWebsocket = () => {
             }, HEARTBEAT_INTERVAL_MS);
 
             const peerId = "frontend-" + Math.random().toString(36).slice(2);
+
             socket.send(JSON.stringify({
                 type: "register",
-                peerId: peerId
+                peerId: peerId,
+            }));
+
+             socket.send(JSON.stringify({
+                type: "connect",
+                peerId: peerId,
+                targetPeerId: "camera-cv-service"
             }));
         }
      
@@ -98,12 +108,12 @@ export const useWebsocket = () => {
 
             socket.onclose = () => {
                 if (streamControl.heartbeatTimer !== null) {
-                window.clearInterval(streamControl.heartbeatTimer);
-                streamControl.heartbeatTimer = null;
+                    window.clearInterval(streamControl.heartbeatTimer);
+                    streamControl.heartbeatTimer = null;
                 }
 
                 if (isDisposedRef.current) {
-                updateConnectionState(streamName, "disconnected");
+                    updateConnectionState(streamName, "disconnected");
                 return;
                 }
 

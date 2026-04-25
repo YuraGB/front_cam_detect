@@ -1,70 +1,74 @@
 import { useEffect } from "react";
 import { useWebsocket } from "./useWebsocket";
 import { usePc } from "./usePc";
+import type { WebRtcMessage } from "#/types";
 
-interface OfferMessage {
-    type: "offer";
-    sdp: string;
-    peerId: string;
-}
+const parseWebRtcMessage = (data: unknown): WebRtcMessage | null => {
+    if (typeof data !== "string") {
+        return null;
+    }
 
-interface AnswerMessage {
-    type: "answer";
-    sdp: string;
-}
+    try {
+        return JSON.parse(data) as WebRtcMessage;
+    } catch {
+        return null;
+    }
+};
 
-interface IceCandidateMessage {
-    type: "ice-candidate";
-    candidate: string;
-    mid: string;
-}
-
-type WebRtcMessage = OfferMessage | AnswerMessage | IceCandidateMessage;
-
-export const useStreams = (): { videoRef: React.RefObject<HTMLVideoElement | null> } => {
-    const {connectionState, websockets} = useWebsocket();
-    const {pc, videoRef} = usePc(websockets.current.webrtc);
+export const useStreams = () => {
+    const {connectionState, websockets, connectionControlsRef} = useWebsocket();
+    const {pc, cameraIds, registerVideoElement, registerOverlayCanvas} = usePc(websockets.current.webrtc);
 
     useEffect(() => {
         const ws = websockets.current.webrtc;
-        if (!ws || connectionState.webrtc !== "connected") return;
+        if (!ws || !pc || connectionState.webrtc !== "connected") return;
 
         const handler = async (event: MessageEvent): Promise<void> => {
-            const msg: WebRtcMessage = JSON.parse(event.data);
-            console.log("Received WebRTC message:", msg);
-
-            switch (msg.type) {
-                case "offer":
-                await pc.setRemoteDescription({
-                    type: "offer",
-                    sdp: msg.sdp,
-                });
-
-                const answer = await pc.createAnswer();
-                await pc.setLocalDescription(answer);
-
-                ws.send(JSON.stringify({
-                    type: "answer",
-                    sdp: answer.sdp,
-                    targetPeerId: msg.peerId,
-                }));
-                break;
-
-                case "answer":
-                await pc.setRemoteDescription({
-                    type: "answer",
-                    sdp: msg.sdp,
-                });
-                break;
-
-                case "ice-candidate":
-                await pc.addIceCandidate({
-                    candidate: msg.candidate,
-                    sdpMid: msg.mid,
-                });
-                break;
+            connectionControlsRef.current.webrtc.lastMessageAt = Date.now();
+            const msg = parseWebRtcMessage(event.data);
+            if (!msg) {
+                return;
             }
-            };
+
+            try {
+                switch (msg.type) {
+                    case "offer": {
+                        await pc.setRemoteDescription({
+                            type: "offer",
+                            sdp: msg.sdp,
+                        });
+
+                        const answer = await pc.createAnswer();
+                        await pc.setLocalDescription(answer);
+
+                        if (ws.readyState === WebSocket.OPEN) {
+                            ws.send(JSON.stringify({
+                                type: "answer",
+                                sdp: answer.sdp,
+                                targetPeerId: msg.peerId,
+                            }));
+                        }
+                        break;
+                    }
+
+                    case "answer":
+                        await pc.setRemoteDescription({
+                            type: "answer",
+                            sdp: msg.sdp,
+                        });
+                        break;
+
+                    case "ice-candidate":
+                        await pc.addIceCandidate({
+                            candidate: msg.candidate,
+                            sdpMid: msg.mid,
+                        });
+                        break;
+                }
+            } catch (error) {
+                console.error("Failed to handle WebRTC signaling message", error);
+            }
+        };
 
         ws.addEventListener("message", handler);
 
@@ -72,9 +76,11 @@ export const useStreams = (): { videoRef: React.RefObject<HTMLVideoElement | nul
             ws.removeEventListener("message", handler);
         };
         
-    }, [connectionState.webrtc]);
+    }, [connectionControlsRef, connectionState.webrtc, pc, websockets]);
 
     return {
-            videoRef,
+        cameraIds,
+        registerVideoElement,
+        registerOverlayCanvas,
     };
 }

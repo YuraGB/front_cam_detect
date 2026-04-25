@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ProfileIndexRouteImport } from './routes/profile/index'
 import { Route as DemoTanstackQueryRouteImport } from './routes/demo/tanstack-query'
 import { Route as DemoI18nRouteImport } from './routes/demo.i18n'
 import { Route as DemoBetterAuthRouteImport } from './routes/demo/better-auth'
@@ -27,6 +28,11 @@ const AboutRoute = AboutRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfileIndexRoute = ProfileIndexRouteImport.update({
+  id: '/profile/',
+  path: '/profile/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DemoTanstackQueryRoute = DemoTanstackQueryRouteImport.update({
@@ -71,6 +77,7 @@ export interface FileRoutesByFullPath {
   '/demo/better-auth': typeof DemoBetterAuthRoute
   '/demo/i18n': typeof DemoI18nRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
+  '/profile/': typeof ProfileIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/demo/form/address': typeof DemoFormAddressRoute
   '/demo/form/simple': typeof DemoFormSimpleRoute
@@ -82,6 +89,7 @@ export interface FileRoutesByTo {
   '/demo/better-auth': typeof DemoBetterAuthRoute
   '/demo/i18n': typeof DemoI18nRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
+  '/profile': typeof ProfileIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/demo/form/address': typeof DemoFormAddressRoute
   '/demo/form/simple': typeof DemoFormSimpleRoute
@@ -94,6 +102,7 @@ export interface FileRoutesById {
   '/demo/better-auth': typeof DemoBetterAuthRoute
   '/demo/i18n': typeof DemoI18nRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
+  '/profile/': typeof ProfileIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/demo/form/address': typeof DemoFormAddressRoute
   '/demo/form/simple': typeof DemoFormSimpleRoute
@@ -107,6 +116,7 @@ export interface FileRouteTypes {
     | '/demo/better-auth'
     | '/demo/i18n'
     | '/demo/tanstack-query'
+    | '/profile/'
     | '/api/auth/$'
     | '/demo/form/address'
     | '/demo/form/simple'
@@ -118,6 +128,7 @@ export interface FileRouteTypes {
     | '/demo/better-auth'
     | '/demo/i18n'
     | '/demo/tanstack-query'
+    | '/profile'
     | '/api/auth/$'
     | '/demo/form/address'
     | '/demo/form/simple'
@@ -129,6 +140,7 @@ export interface FileRouteTypes {
     | '/demo/better-auth'
     | '/demo/i18n'
     | '/demo/tanstack-query'
+    | '/profile/'
     | '/api/auth/$'
     | '/demo/form/address'
     | '/demo/form/simple'
@@ -141,6 +153,7 @@ export interface RootRouteChildren {
   DemoBetterAuthRoute: typeof DemoBetterAuthRoute
   DemoI18nRoute: typeof DemoI18nRoute
   DemoTanstackQueryRoute: typeof DemoTanstackQueryRoute
+  ProfileIndexRoute: typeof ProfileIndexRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   DemoFormAddressRoute: typeof DemoFormAddressRoute
   DemoFormSimpleRoute: typeof DemoFormSimpleRoute
@@ -161,6 +174,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profile/': {
+      id: '/profile/'
+      path: '/profile'
+      fullPath: '/profile/'
+      preLoaderRoute: typeof ProfileIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/demo/tanstack-query': {
@@ -221,6 +241,7 @@ const rootRouteChildren: RootRouteChildren = {
   DemoBetterAuthRoute: DemoBetterAuthRoute,
   DemoI18nRoute: DemoI18nRoute,
   DemoTanstackQueryRoute: DemoTanstackQueryRoute,
+  ProfileIndexRoute: ProfileIndexRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   DemoFormAddressRoute: DemoFormAddressRoute,
   DemoFormSimpleRoute: DemoFormSimpleRoute,
