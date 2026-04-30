@@ -20,6 +20,7 @@ export const getSessionFn = createServerFn({ method: "GET" }).handler(
 
 export const Route = createFileRoute('/profile/')({
   component: RouteComponent,
+  
   loader: async () => {
     const session = await getSessionFn() // Call the server function to get the session data
 

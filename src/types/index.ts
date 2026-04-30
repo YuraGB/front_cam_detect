@@ -18,6 +18,9 @@ type StreamConnectionControl = {
   heartbeatTimer: number | null;
   reconnectAttempt: number;
   lastMessageAt: number;
+  isRegistered: boolean;
+  connectRequested: boolean;
+  peerId: string | null;
 };
 
 interface OfferMessage {
@@ -39,6 +42,19 @@ interface IceCandidateMessage {
 
 
 type WebRtcMessage = OfferMessage | AnswerMessage | IceCandidateMessage;
+type CameraBinding = {
+  stream: MediaStream;
+  video: HTMLVideoElement | null;
+  canvas: HTMLCanvasElement | null;
+  layoutHandler: (() => void) | null;
+};
+
+type UsePcResult = {
+  pc: RTCPeerConnection | null;
+  cameraIds: string[];
+  registerVideoElement: (cameraId: string, element: HTMLVideoElement | null) => void;
+  registerOverlayCanvas: (cameraId: string, element: HTMLCanvasElement | null) => void;
+};
 
 
-export type { StreamHealth, StreamMetric, StreamMetricMutable, StreamConnectionControl, WebRtcMessage };
+export type { StreamHealth, StreamMetric, StreamMetricMutable, StreamConnectionControl, WebRtcMessage, CameraBinding, UsePcResult  };

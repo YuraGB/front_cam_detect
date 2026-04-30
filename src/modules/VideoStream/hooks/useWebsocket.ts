@@ -9,7 +9,26 @@ const createStreamControl = (): StreamConnectionControl => ({
   heartbeatTimer: null,
   reconnectAttempt: 0,
   lastMessageAt: 0,
+  isRegistered: false,
+  connectRequested: false,
+  peerId: null,
 });
+
+const getStablePeerId = (streamName: StreamType): string => {
+  const storageKey = `cam-frontend-peer-id:${streamName}`;
+  try {
+    const existing = window.sessionStorage.getItem(storageKey);
+    if (existing) {
+      return existing;
+    }
+
+    const generated = `frontend-${Math.random().toString(36).slice(2)}`;
+    window.sessionStorage.setItem(storageKey, generated);
+    return generated;
+  } catch {
+    return `frontend-${Math.random().toString(36).slice(2)}`;
+  }
+};
 
 const emptyConnectionState: Record<StreamType, StreamHealth> = {
     liveStream: "disconnected",
@@ -49,9 +68,22 @@ export const useWebsocket = () => {
         const connectStream = (streamUrl: StreamURL) => {
             const { socket, streamName } = createSocket(streamUrl);
             const streamControl = connectionControlsRef.current[streamName];
+            const attemptNumber = streamControl.reconnectAttempt + 1;
+            const isCurrentSocket = () => streamControl.ws === socket;
 
             streamControl.ws = socket;
+            streamControl.isRegistered = false;
+            streamControl.connectRequested = false;
+            if (!streamControl.peerId) {
+                streamControl.peerId = getStablePeerId(streamName);
+            }
             wsRef.current[streamName] = socket;
+
+            console.info("[WS] create", {
+                streamName,
+                streamUrl,
+                attemptNumber,
+            });
 
             updateConnectionState(
                 streamName,
@@ -59,6 +91,20 @@ export const useWebsocket = () => {
             );
 
             socket.onopen = () => {
+                if (!isCurrentSocket()) {
+                    console.info("[WS] ignoring open from stale socket", {
+                        streamName,
+                        streamUrl,
+                        attemptNumber,
+                    });
+                    socket.close();
+                    return;
+                }
+                console.info("[WS] open", {
+                    streamName,
+                    streamUrl,
+                    attemptNumber,
+                });
                 streamControl.reconnectAttempt = 0;
                 streamControl.lastMessageAt = Date.now();
 
@@ -80,21 +126,32 @@ export const useWebsocket = () => {
                 }
             }, HEARTBEAT_INTERVAL_MS);
 
-            const peerId = "frontend-" + Math.random().toString(36).slice(2);
+            const peerId = streamControl.peerId ?? getStablePeerId(streamName);
+            streamControl.peerId = peerId;
 
             socket.send(JSON.stringify({
                 type: "register",
-                peerId: peerId,
+                peerId,
             }));
-
-             socket.send(JSON.stringify({
-                type: "connect",
-                peerId: peerId,
-                targetPeerId: "camera-cv-service"
-            }));
+            streamControl.isRegistered = true;
         }
      
             socket.onerror = () => {
+                if (!isCurrentSocket()) {
+                    console.info("[WS] ignoring error from stale socket", {
+                        streamName,
+                        streamUrl,
+                        attemptNumber,
+                        readyState: socket.readyState,
+                    });
+                    return;
+                }
+                console.warn("[WS] error", {
+                    streamName,
+                    streamUrl,
+                    attemptNumber,
+                    readyState: socket.readyState,
+                });
                 updateConnectionState(streamName, "reconnecting");
                 if (streamControl.heartbeatTimer !== null) {
                     window.clearInterval(streamControl.heartbeatTimer);
@@ -106,7 +163,27 @@ export const useWebsocket = () => {
                 };
             }
 
-            socket.onclose = () => {
+            socket.onclose = (event) => {
+                if (!isCurrentSocket()) {
+                    console.info("[WS] ignoring close from stale socket", {
+                        streamName,
+                        streamUrl,
+                        attemptNumber,
+                        code: event.code,
+                        reason: event.reason,
+                        wasClean: event.wasClean,
+                    });
+                    return;
+                }
+                console.warn("[WS] close", {
+                    streamName,
+                    streamUrl,
+                    attemptNumber,
+                    code: event.code,
+                    reason: event.reason,
+                    wasClean: event.wasClean,
+                    disposed: isDisposedRef.current,
+                });
                 if (streamControl.heartbeatTimer !== null) {
                     window.clearInterval(streamControl.heartbeatTimer);
                     streamControl.heartbeatTimer = null;
@@ -115,6 +192,16 @@ export const useWebsocket = () => {
                 if (isDisposedRef.current) {
                     updateConnectionState(streamName, "disconnected");
                 return;
+                }
+
+                if (event.code === 4001 && event.reason === "peer replaced") {
+                    console.warn("[WS] peer replaced on current socket; waiting for active replacement instead of reconnecting", {
+                        streamName,
+                        streamUrl,
+                        attemptNumber,
+                    });
+                    updateConnectionState(streamName, "reconnecting");
+                    return;
                 }
 
                 updateConnectionState(streamName, "reconnecting");
@@ -130,6 +217,12 @@ export const useWebsocket = () => {
                     window.clearTimeout(streamControl.reconnectTimer);
                 }
 
+                console.info("[WS] reconnect scheduled", {
+                    streamName,
+                    streamUrl,
+                    nextAttemptNumber: streamControl.reconnectAttempt + 1,
+                    reconnectDelay,
+                });
                 streamControl.reconnectTimer = window.setTimeout(() => {
                     streamControl.reconnectTimer = null;
                     connectStream(streamUrl);
@@ -143,6 +236,10 @@ export const useWebsocket = () => {
             isDisposedRef.current = true;
             Object.values(wsRef.current).forEach((ws) => {
                 if (ws) {
+                    console.info("[WS] cleanup close", {
+                        url: ws.url,
+                        readyState: ws.readyState,
+                    });
                     ws.close();
                 }   
             });

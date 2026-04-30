@@ -10,9 +10,15 @@ const STREAM_URLS =  [
 export type StreamType = typeof STREAM_TYPES[number];
 export type StreamURL = typeof STREAM_URLS[number];
 
+export const WEBRTC_TARGET_PEER_ID = "camera-cv-service";
+
 export type VideoResources = Partial<Record<string, Partial<Record<StreamType, HTMLCanvasElement>>>>;
 
 export { STREAM_TYPES, STREAM_URLS}
+
+export const RTCPeerConnectionConfig: RTCConfiguration = {
+  iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
+};
 
 
 const HEARTBEAT_INTERVAL_MS = 5000;

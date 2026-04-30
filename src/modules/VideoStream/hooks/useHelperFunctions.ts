@@ -1,21 +1,21 @@
 import type { CameraBinding } from "#/types";
 import { useCallback, useRef, useState } from "react";
 import type { DetectionFrameMessage } from "../lib/detections";
+import { clearCanvas, drawDetectionsOverlay } from "#/lib/drawDetections";
 
 export const useHelperFunctions = () => {
-      const [cameraIds, setCameraIds] = useState<string[]>([]);
-      const animationFramesRef = useRef<Partial<Record<string, number | null>>>({});
-       const resizeObserversRef = useRef<Partial<Record<string, ResizeObserver | null>>>({});
-      const cameraBindingsRef = useRef<Partial<Record<string, CameraBinding>>>({});
-       
+  const [cameraIds, setCameraIds] = useState<string[]>([]);
+
+  const animationFramesRef = useRef<Partial<Record<string, number | null>>>({});
+  const resizeObserversRef = useRef<Partial<Record<string, ResizeObserver | null>>>({});
+  const cameraBindingsRef = useRef<Partial<Record<string, CameraBinding>>>({});       
   const trackMidToCameraRef = useRef<Partial<Record<string, string>>>({});
-  const pendingTracksByMidRef = useRef<Partial<Record<string, MediaStreamTrack>>>({});
-
-      
+  const pendingTracksByMidRef = useRef<Partial<Record<string, MediaStreamTrack>>>({});      
   const latestDetectionByCameraRef = useRef<Partial<Record<string, DetectionFrameMessage | null>>>({});
-
-      const ensureCameraBinding = useCallback((cameraId: string): CameraBinding => {
+  
+  const ensureCameraBinding = useCallback((cameraId: string): CameraBinding => {
     const existing = cameraBindingsRef.current[cameraId];
+    
     if (existing) {
       return existing;
     }
@@ -203,5 +203,11 @@ export const useHelperFunctions = () => {
     registerVideoElement,
     registerOverlayCanvas,
     latestDetectionByCameraRef,
+    trackMidToCameraRef,
+    pendingTracksByMidRef,
+    cameraIds,
+    animationFramesRef,
+    resizeObserversRef,
+    cameraBindingsRef,
   };
 }

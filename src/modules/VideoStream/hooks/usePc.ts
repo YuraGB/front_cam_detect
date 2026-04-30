@@ -2,45 +2,32 @@ import type {  UsePcResult } from "#/types";
 import { parseRtcDataMessage } from "../lib/detections";
 import {  useEffect, useRef } from "react";
 import { useHelperFunctions } from "./useHelperFunctions";
-
-const DETECTION_STALE_TIMEOUT_MS = 250;
-const WEBRTC_TARGET_PEER_ID = "camera-cv-service";
-
-
+import { DETECTION_STALE_TIMEOUT_MS, RTCPeerConnectionConfig, WEBRTC_TARGET_PEER_ID } from "#/constants";
 
 export const usePc = (ws?: WebSocket): UsePcResult => {
-
   const pcRef = useRef<RTCPeerConnection | null>(null);
   const dcRef = useRef<RTCDataChannel | null>(null);
-  const websocketRef = useRef<WebSocket | undefined>(ws);
-
   const detectionClearTimersRef = useRef<Partial<Record<string, number | null>>>({});
 
   const {
     attachTrackToCamera,
-     clearOverlay,
-      animationFramesRef,
-       resizeObserversRef,
-        cameraBindingsRef,        
-     applyTrackMap, 
-     ensureCameraBinding,
-      registerOverlayCanvas,
-       registerVideoElement,
-        scheduleOverlayDraw,
-         latestDetectionByCameraRef,
-          trackMidToCameraRef,
-           pendingTracksByMidRef,
-            cameraIds
-          } = useHelperFunctions();
-
-  useEffect(() => {
-    websocketRef.current = ws;
-  }, [ws]);
+    clearOverlay,
+    animationFramesRef,
+    resizeObserversRef,
+    cameraBindingsRef,        
+    applyTrackMap, 
+    ensureCameraBinding,
+    registerOverlayCanvas,
+    registerVideoElement,
+    scheduleOverlayDraw,
+    latestDetectionByCameraRef,
+    trackMidToCameraRef,
+    pendingTracksByMidRef,
+    cameraIds
+  } = useHelperFunctions();
 
   if (!pcRef.current) {
-    const pc = new RTCPeerConnection({
-      iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
-    });
+    const pc = new RTCPeerConnection(RTCPeerConnectionConfig);
 
     pc.ontrack = (event) => {
       const mid = event.transceiver.mid;
@@ -58,7 +45,7 @@ export const usePc = (ws?: WebSocket): UsePcResult => {
     };
 
     pc.onicecandidate = (event) => {
-      const activeSocket = websocketRef.current;
+      const activeSocket = ws;
       if (!activeSocket || activeSocket.readyState !== WebSocket.OPEN || !event.candidate) return;
 
       activeSocket.send(

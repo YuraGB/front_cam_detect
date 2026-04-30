@@ -1,19 +1,7 @@
 import { useEffect } from "react";
 import { useWebsocket } from "./useWebsocket";
 import { usePc } from "./usePc";
-import type { WebRtcMessage } from "#/types";
-
-const parseWebRtcMessage = (data: unknown): WebRtcMessage | null => {
-    if (typeof data !== "string") {
-        return null;
-    }
-
-    try {
-        return JSON.parse(data) as WebRtcMessage;
-    } catch {
-        return null;
-    }
-};
+import parseWebRtcMessage from "../lib/parseWebRtcMessage";
 
 export const useStreams = () => {
     const {connectionState, websockets, connectionControlsRef} = useWebsocket();

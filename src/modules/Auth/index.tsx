@@ -1,11 +1,8 @@
 import { useAuthForm } from './hooks/useAuthForm'
-import { useRouter } from '@tanstack/react-router'
 
 export function Auth() {
-    const router = useRouter()
 const { 
     isPending,
-    session,
     isSignUp, 
     handleSubmit,
     name,
@@ -27,12 +24,6 @@ const {
         <div className="h-5 w-5 animate-spin rounded-full border-2 border-neutral-200 border-t-neutral-900 dark:border-neutral-800 dark:border-t-neutral-100" />
       </div>
     )
-  }
-
-  if (session?.user) {
-    document.startViewTransition(() => {
-        router.navigate({ to: '/profile' })
-    })
   }
 
   return (

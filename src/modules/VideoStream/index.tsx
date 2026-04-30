@@ -15,8 +15,9 @@ export const VideoStream = () => {
                                 ref={(element) => registerVideoElement(cameraId, element)}
                                 autoPlay
                                 playsInline
+                                muted
                                 controls
-                                style={{ width: "100%", display: "block", background: "#000" }}
+                                style={{ width: "100%", display: "block", background: "#000", position: "relative", zIndex: 0 }}
                             />
                             <canvas
                                 ref={(element) => registerOverlayCanvas(cameraId, element)}
@@ -27,6 +28,7 @@ export const VideoStream = () => {
                                     width: "100%",
                                     height: "100%",
                                     pointerEvents: "none",
+                                    zIndex: 1,
                                 }}
                             />
                         </div>
