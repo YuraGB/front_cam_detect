@@ -12,7 +12,9 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as Video_streamIndexRouteImport } from './routes/video_stream/index'
+import { Route as TestIndexRouteImport } from './routes/test/index'
 import { Route as ProfileIndexRouteImport } from './routes/profile/index'
+import { Route as TestIdRouteImport } from './routes/test/$id'
 import { Route as DemoTanstackQueryRouteImport } from './routes/demo/tanstack-query'
 import { Route as DemoI18nRouteImport } from './routes/demo.i18n'
 import { Route as DemoSentryTestingRouteImport } from './routes/demo/sentry.testing'
@@ -35,9 +37,19 @@ const Video_streamIndexRoute = Video_streamIndexRouteImport.update({
   path: '/video_stream/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TestIndexRoute = TestIndexRouteImport.update({
+  id: '/test/',
+  path: '/test/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProfileIndexRoute = ProfileIndexRouteImport.update({
   id: '/profile/',
   path: '/profile/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TestIdRoute = TestIdRouteImport.update({
+  id: '/test/$id',
+  path: '/test/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DemoTanstackQueryRoute = DemoTanstackQueryRouteImport.update({
@@ -76,7 +88,9 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/demo/i18n': typeof DemoI18nRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
+  '/test/$id': typeof TestIdRoute
   '/profile/': typeof ProfileIndexRoute
+  '/test/': typeof TestIndexRoute
   '/video_stream/': typeof Video_streamIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/demo/form/address': typeof DemoFormAddressRoute
@@ -88,7 +102,9 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/demo/i18n': typeof DemoI18nRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
+  '/test/$id': typeof TestIdRoute
   '/profile': typeof ProfileIndexRoute
+  '/test': typeof TestIndexRoute
   '/video_stream': typeof Video_streamIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/demo/form/address': typeof DemoFormAddressRoute
@@ -101,7 +117,9 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/demo/i18n': typeof DemoI18nRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
+  '/test/$id': typeof TestIdRoute
   '/profile/': typeof ProfileIndexRoute
+  '/test/': typeof TestIndexRoute
   '/video_stream/': typeof Video_streamIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/demo/form/address': typeof DemoFormAddressRoute
@@ -115,7 +133,9 @@ export interface FileRouteTypes {
     | '/about'
     | '/demo/i18n'
     | '/demo/tanstack-query'
+    | '/test/$id'
     | '/profile/'
+    | '/test/'
     | '/video_stream/'
     | '/api/auth/$'
     | '/demo/form/address'
@@ -127,7 +147,9 @@ export interface FileRouteTypes {
     | '/about'
     | '/demo/i18n'
     | '/demo/tanstack-query'
+    | '/test/$id'
     | '/profile'
+    | '/test'
     | '/video_stream'
     | '/api/auth/$'
     | '/demo/form/address'
@@ -139,7 +161,9 @@ export interface FileRouteTypes {
     | '/about'
     | '/demo/i18n'
     | '/demo/tanstack-query'
+    | '/test/$id'
     | '/profile/'
+    | '/test/'
     | '/video_stream/'
     | '/api/auth/$'
     | '/demo/form/address'
@@ -152,7 +176,9 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   DemoI18nRoute: typeof DemoI18nRoute
   DemoTanstackQueryRoute: typeof DemoTanstackQueryRoute
+  TestIdRoute: typeof TestIdRoute
   ProfileIndexRoute: typeof ProfileIndexRoute
+  TestIndexRoute: typeof TestIndexRoute
   Video_streamIndexRoute: typeof Video_streamIndexRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   DemoFormAddressRoute: typeof DemoFormAddressRoute
@@ -183,11 +209,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof Video_streamIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/test/': {
+      id: '/test/'
+      path: '/test'
+      fullPath: '/test/'
+      preLoaderRoute: typeof TestIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/profile/': {
       id: '/profile/'
       path: '/profile'
       fullPath: '/profile/'
       preLoaderRoute: typeof ProfileIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/test/$id': {
+      id: '/test/$id'
+      path: '/test/$id'
+      fullPath: '/test/$id'
+      preLoaderRoute: typeof TestIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/demo/tanstack-query': {
@@ -240,7 +280,9 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   DemoI18nRoute: DemoI18nRoute,
   DemoTanstackQueryRoute: DemoTanstackQueryRoute,
+  TestIdRoute: TestIdRoute,
   ProfileIndexRoute: ProfileIndexRoute,
+  TestIndexRoute: TestIndexRoute,
   Video_streamIndexRoute: Video_streamIndexRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   DemoFormAddressRoute: DemoFormAddressRoute,

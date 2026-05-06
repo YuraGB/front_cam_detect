@@ -1,24 +1,22 @@
 import { useAuthForm } from './hooks/useAuthForm'
 
 export function Auth() {
-const { 
-    isPending,
-    isSignUp, 
+  const {
+    isSignUp,
     handleSubmit,
     name,
-    email, 
-    password, 
+    email,
+    password,
     loading,
     error,
-    setError, 
+    setError,
     setIsSignUp,
-    setName, 
-    setEmail, 
-    setPassword 
-} = useAuthForm()
+    setName,
+    setEmail,
+    setPassword,
+  } = useAuthForm()
 
-  if (isPending) {
-    
+  if (loading) {
     return (
       <div className="flex items-center justify-center py-10">
         <div className="h-5 w-5 animate-spin rounded-full border-2 border-neutral-200 border-t-neutral-900 dark:border-neutral-800 dark:border-t-neutral-100" />
@@ -32,7 +30,7 @@ const {
         <h1 className="text-lg font-semibold leading-none tracking-tight">
           {isSignUp ? 'Create an account' : 'Sign in'}
         </h1>
- 
+
         <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-2 mb-6">
           {isSignUp
             ? 'Enter your information to create an account'
@@ -40,9 +38,9 @@ const {
         </p>
 
         <div className="h-10 w-10 bg-neutral-200 dark:bg-neutral-800 flex items-center justify-center">
-            <span className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
-                {name?.charAt(0).toUpperCase() || 'U'}
-            </span>
+          <span className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
+            {name.charAt(0).toUpperCase() || 'U'}
+          </span>
         </div>
 
         <form onSubmit={handleSubmit} className="grid gap-4">

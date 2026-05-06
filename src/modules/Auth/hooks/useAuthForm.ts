@@ -1,16 +1,27 @@
-import { authClient } from "#/lib/auth-client"
-import { useState } from "react"
+import { authClient } from '#/lib/auth-client'
+import { useRouter } from '@tanstack/react-router'
+import { useEffect, useState } from 'react'
 
 export const useAuthForm = () => {
-    const { data: session, isPending } = authClient.useSession()
-    const [isSignUp, setIsSignUp] = useState(false)
-    const [email, setEmail] = useState('')
-    const [password, setPassword] = useState('')
-    const [name, setName] = useState('')
-    const [error, setError] = useState('')
-    const [loading, setLoading] = useState(false)
+  const { data: session } = authClient.useSession()
+  const [isSignUp, setIsSignUp] = useState(false)
+  const router = useRouter()
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [name, setName] = useState('')
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
 
-    const handleSubmit = async (e: React.FormEvent) => {
+  useEffect(() => {
+    if (session?.user) {
+      router.navigate({
+        to: '/profile',
+        viewTransition: true,
+      })
+    }
+  }, [session])
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
     setLoading(true)
@@ -43,7 +54,6 @@ export const useAuthForm = () => {
 
   return {
     session,
-    isPending,
     isSignUp,
     email,
     password,
@@ -56,6 +66,6 @@ export const useAuthForm = () => {
     setName,
     handleSubmit,
     setError,
-    image: session?.user?.image || null,
+    image: session?.user.image || null,
   }
 }

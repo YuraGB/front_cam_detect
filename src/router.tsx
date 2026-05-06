@@ -6,6 +6,7 @@ import { getContext } from './integrations/tanstack-query/root-provider'
 export function getRouter() {
   const router = createTanStackRouter({
     routeTree,
+    // defaultViewTransition: true,
 
     context: getContext(),
 

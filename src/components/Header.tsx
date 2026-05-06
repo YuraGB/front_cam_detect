@@ -32,6 +32,14 @@ export default function Header() {
               />
             </svg>
           </a>
+          <Link
+            to="/test"
+            className="nav-link"
+            viewTransition={true}
+            activeProps={{ className: 'nav-link is-active' }}
+          >
+            Test
+          </Link>
           <a
             href="https://github.com/TanStack"
             target="_blank"
