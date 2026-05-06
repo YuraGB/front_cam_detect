@@ -1,13 +1,16 @@
 import type {  UsePcResult } from "#/types";
 import { parseRtcDataMessage } from "../lib/detections";
-import {  useEffect, useRef } from "react";
+import {  useCallback, useEffect, useRef } from "react";
 import { useHelperFunctions } from "./useHelperFunctions";
 import { DETECTION_STALE_TIMEOUT_MS, RTCPeerConnectionConfig, WEBRTC_TARGET_PEER_ID } from "#/constants";
+import { useVideoLatencyMetrics } from "./useVideoLatencyMetrics";
 
 export const usePc = (ws?: WebSocket): UsePcResult => {
   const pcRef = useRef<RTCPeerConnection | null>(null);
   const dcRef = useRef<RTCDataChannel | null>(null);
+  const wsRef = useRef<WebSocket | undefined>(ws);
   const detectionClearTimersRef = useRef<Partial<Record<string, number | null>>>({});
+  const { latencyMetrics, recordVideoLatencySample, registerLatencyVideoElement } = useVideoLatencyMetrics();
 
   const {
     attachTrackToCamera,
@@ -25,6 +28,10 @@ export const usePc = (ws?: WebSocket): UsePcResult => {
     pendingTracksByMidRef,
     cameraIds
   } = useHelperFunctions();
+
+  useEffect(() => {
+    wsRef.current = ws;
+  }, [ws]);
 
   if (!pcRef.current) {
     const pc = new RTCPeerConnection(RTCPeerConnectionConfig);
@@ -45,7 +52,7 @@ export const usePc = (ws?: WebSocket): UsePcResult => {
     };
 
     pc.onicecandidate = (event) => {
-      const activeSocket = ws;
+      const activeSocket = wsRef.current;
       if (!activeSocket || activeSocket.readyState !== WebSocket.OPEN || !event.candidate) return;
 
       activeSocket.send(
@@ -67,9 +74,14 @@ export const usePc = (ws?: WebSocket): UsePcResult => {
         if (!message) {
           return;
         }
-        console.log(message)
         if (message.type === "track_map") {
           applyTrackMap(message.tracks);
+          return;
+        }
+
+        if (message.type === "video_latency_sample") {
+          ensureCameraBinding(message.cameraId);
+          recordVideoLatencySample(message);
           return;
         }
 
@@ -134,10 +146,19 @@ export const usePc = (ws?: WebSocket): UsePcResult => {
     };
   }, []);
 
+  const registerLiveVideoElement = useCallback(
+    (cameraId: string, element: HTMLVideoElement | null) => {
+      registerVideoElement(cameraId, element);
+      registerLatencyVideoElement(cameraId, element);
+    },
+    [registerLatencyVideoElement, registerVideoElement]
+  );
+
   return {
     pc: pcRef.current,
     cameraIds,
-    registerVideoElement,
+    latencyMetrics,
+    registerVideoElement: registerLiveVideoElement,
     registerOverlayCanvas,
   };
 };

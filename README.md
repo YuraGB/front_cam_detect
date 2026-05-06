@@ -1,274 +1,159 @@
-Welcome to your new TanStack Start app! 
+# cam_frontend
 
-# Getting Started
+Browser frontend for the camera WebRTC stack.
 
-To run this application:
+The app connects to the Bun signaling server, negotiates a native WebRTC session with the C++ camera service, renders live H264 video tracks, draws YOLO detections on canvas overlays, and displays live capture-to-render latency estimates.
+
+## Run
 
 ```bash
 npm install
 npm run dev
 ```
 
-# Building For Production
+Default dev URL:
 
-To build this application for production:
+```text
+http://localhost:3000
+```
+
+Video route:
+
+```text
+/video_stream
+```
+
+## Build And Checks
 
 ```bash
 npm run build
-```
-
-## Testing
-
-This project uses [Vitest](https://vitest.dev/) for testing. You can run the tests with:
-
-```bash
 npm run test
-```
-
-## Styling
-
-This project uses [Tailwind CSS](https://tailwindcss.com/) for styling.
-
-### Removing Tailwind CSS
-
-If you prefer not to use Tailwind CSS:
-
-1. Remove the demo pages in `src/routes/demo/`
-2. Replace the Tailwind import in `src/styles.css` with your own styles
-3. Remove `tailwindcss()` from the plugins array in `vite.config.ts`
-4. Uninstall the packages: `npm install @tailwindcss/vite tailwindcss -D`
-
-## Linting & Formatting
-
-
-This project uses [eslint](https://eslint.org/) and [prettier](https://prettier.io/) for linting and formatting. Eslint is configured using [tanstack/eslint-config](https://tanstack.com/config/latest/docs/eslint). The following scripts are available:
-
-```bash
 npm run lint
-npm run format
-npm run check
 ```
 
+Current note: `npx tsc --noEmit` may fail on the existing `/demo/better-auth` route typing issue. The VideoStream files can be checked directly with ESLint.
 
-# Paraglide i18n
+## WebRTC Flow
 
-This add-on wires up ParaglideJS for localized routing and message formatting.
+The frontend uses one signaling WebSocket:
 
-- Messages live in `project.inlang/messages`.
-- URLs are localized through the Paraglide Vite plugin and router `rewrite` hooks.
-- Run the dev server or build to regenerate the `src/paraglide` outputs.
-
-
-## Shadcn
-
-Add components using the latest version of [Shadcn](https://ui.shadcn.com/).
-
-```bash
-pnpm dlx shadcn@latest add button
+```text
+ws://127.0.0.1:3001/ws?type=webrtc
 ```
 
+Flow:
 
-## T3Env
+1. Open WebSocket to the signaling server.
+2. Register a stable session peer id, such as `frontend-abc`.
+3. Send `viewer-join` to `camera-cv-service`.
+4. Receive an SDP `offer` from the C++ service.
+5. Create and send an SDP `answer`.
+6. Exchange `ice-candidate` messages.
+7. Receive live video tracks and the `detectionStream` DataChannel.
 
-- You can use T3Env to add type safety to your environment variables.
-- Add Environment variables to the `src/env.mjs` file.
-- Use the environment variables in your code.
+Important constants live in [src/constants/index.ts](/D:/Projects/cam_frontend/cam_frontend/src/constants/index.ts).
 
-### Usage
+## Video Rendering
 
-```ts
-import { env } from "#/env";
+The main route is implemented by:
 
-console.log(env.VITE_APP_TITLE);
-```
+- [VideoStream index.tsx](/D:/Projects/cam_frontend/cam_frontend/src/modules/VideoStream/index.tsx)
+- [useStreams.ts](/D:/Projects/cam_frontend/cam_frontend/src/modules/VideoStream/hooks/useStreams.ts)
+- [usePc.ts](/D:/Projects/cam_frontend/cam_frontend/src/modules/VideoStream/hooks/usePc.ts)
+- [CameraStreamView.tsx](/D:/Projects/cam_frontend/cam_frontend/src/modules/VideoStream/components/CameraStreamView.tsx)
+- [LatencyBadge.tsx](/D:/Projects/cam_frontend/cam_frontend/src/modules/VideoStream/components/LatencyBadge.tsx)
 
+Each camera gets:
 
+- a `<video>` element for the native WebRTC media track
+- a canvas overlay for detections
+- a memoized latency badge
 
+The stream item and latency badge are split into memoized components so metric updates do not rebind the video element or reset `srcObject`.
 
+## DataChannel Payloads
 
-## Setting up Better Auth
+The C++ service sends DataChannel messages on `detectionStream`.
 
-1. Generate and set the `BETTER_AUTH_SECRET` environment variable in your `.env.local`:
+Detection frame:
 
-   ```bash
-   npx -y @better-auth/cli secret
-   ```
-
-2. Visit the [Better Auth documentation](https://www.better-auth.com) to unlock the full potential of authentication in your app.
-
-### Adding a Database (Optional)
-
-Better Auth can work in stateless mode, but to persist user data, add a database:
-
-```typescript
-// src/lib/auth.ts
-import { betterAuth } from "better-auth";
-import { Pool } from "pg";
-
-export const auth = betterAuth({
-  database: new Pool({
-    connectionString: process.env.DATABASE_URL,
-  }),
-  // ... rest of config
-});
-```
-
-Then run migrations:
-
-```bash
-npx -y @better-auth/cli migrate
-```
-
-
-
-## Routing
-
-This project uses [TanStack Router](https://tanstack.com/router) with file-based routing. Routes are managed as files in `src/routes`.
-
-### Adding A Route
-
-To add a new route to your application just add a new file in the `./src/routes` directory.
-
-TanStack will automatically generate the content of the route file for you.
-
-Now that you have two routes you can use a `Link` component to navigate between them.
-
-### Adding Links
-
-To use SPA (Single Page Application) navigation you will need to import the `Link` component from `@tanstack/react-router`.
-
-```tsx
-import { Link } from "@tanstack/react-router";
-```
-
-Then anywhere in your JSX you can use it like so:
-
-```tsx
-<Link to="/about">About</Link>
-```
-
-This will create a link that will navigate to the `/about` route.
-
-More information on the `Link` component can be found in the [Link documentation](https://tanstack.com/router/v1/docs/framework/react/api/router/linkComponent).
-
-### Using A Layout
-
-In the File Based Routing setup the layout is located in `src/routes/__root.tsx`. Anything you add to the root route will appear in all the routes. The route content will appear in the JSX where you render `{children}` in the `shellComponent`.
-
-Here is an example layout that includes a header:
-
-```tsx
-import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router'
-
-export const Route = createRootRoute({
-  head: () => ({
-    meta: [
-      { charSet: 'utf-8' },
-      { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-      { title: 'My App' },
-    ],
-  }),
-  shellComponent: ({ children }) => (
-    <html lang="en">
-      <head>
-        <HeadContent />
-      </head>
-      <body>
-        <header>
-          <nav>
-            <Link to="/">Home</Link>
-            <Link to="/about">About</Link>
-          </nav>
-        </header>
-        {children}
-        <Scripts />
-      </body>
-    </html>
-  ),
-})
-```
-
-More information on layouts can be found in the [Layouts documentation](https://tanstack.com/router/latest/docs/framework/react/guide/routing-concepts#layouts).
-
-## Server Functions
-
-TanStack Start provides server functions that allow you to write server-side code that seamlessly integrates with your client components.
-
-```tsx
-import { createServerFn } from '@tanstack/react-start'
-
-const getServerTime = createServerFn({
-  method: 'GET',
-}).handler(async () => {
-  return new Date().toISOString()
-})
-
-// Use in a component
-function MyComponent() {
-  const [time, setTime] = useState('')
-  
-  useEffect(() => {
-    getServerTime().then(setTime)
-  }, [])
-  
-  return <div>Server time: {time}</div>
+```json
+{
+  "type": "detection_frame",
+  "camera_id": "camera_0",
+  "timestamp": 12.533,
+  "detections": [
+    {
+      "label": "person",
+      "confidence": 0.92,
+      "bbox": {
+        "x": 120,
+        "y": 48,
+        "width": 210,
+        "height": 390
+      }
+    }
+  ]
 }
 ```
 
-## API Routes
+Track map:
 
-You can create API routes by using the `server` property in your route definitions:
-
-```tsx
-import { createFileRoute } from '@tanstack/react-router'
-import { json } from '@tanstack/react-start'
-
-export const Route = createFileRoute('/api/hello')({
-  server: {
-    handlers: {
-      GET: () => json({ message: 'Hello, World!' }),
-    },
-  },
-})
-```
-
-## Data Fetching
-
-There are multiple ways to fetch data in your application. You can use TanStack Query to fetch data from a server. But you can also use the `loader` functionality built into TanStack Router to load the data for a route before it's rendered.
-
-For example:
-
-```tsx
-import { createFileRoute } from '@tanstack/react-router'
-
-export const Route = createFileRoute('/people')({
-  loader: async () => {
-    const response = await fetch('https://swapi.dev/api/people')
-    return response.json()
-  },
-  component: PeopleComponent,
-})
-
-function PeopleComponent() {
-  const data = Route.useLoaderData()
-  return (
-    <ul>
-      {data.results.map((person) => (
-        <li key={person.name}>{person.name}</li>
-      ))}
-    </ul>
-  )
+```json
+{
+  "type": "track_map",
+  "tracks": [
+    {
+      "mid": "cam_camera_0",
+      "camera_id": "camera_0"
+    }
+  ]
 }
 ```
 
-Loaders simplify your data fetching logic dramatically. Check out more information in the [Loader documentation](https://tanstack.com/router/latest/docs/framework/react/guide/data-loading#loader-parameters).
+Live video latency sample:
 
-# Demo files
+```json
+{
+  "type": "video_latency_sample",
+  "camera_id": "camera_0",
+  "frame_id": 12345,
+  "capture_timestamp_ms": 1715000000000,
+  "encoded_timestamp_ms": 1715000000024,
+  "sample_interval_ms": 1000
+}
+```
 
-Files prefixed with `demo` can be safely deleted. They are there to provide a starting point for you to play around with the features you've installed.
+Parsing lives in [detections.ts](/D:/Projects/cam_frontend/cam_frontend/src/modules/VideoStream/lib/detections.ts).
 
-# Learn More
+## Latency Metrics
 
-You can learn more about all of the offerings from TanStack in the [TanStack documentation](https://tanstack.com).
+Latency measurement is intentionally separate from YOLO detection timing.
 
-For TanStack Start specific documentation, visit [TanStack Start](https://tanstack.com/start).
+The C++ service timestamps frames when they enter the live video pipeline, then sends throttled `video_latency_sample` messages. The frontend stores the latest sample per camera and uses `HTMLVideoElement.requestVideoFrameCallback()` to measure when a rendered video frame reaches the browser compositor.
+
+The displayed value is:
+
+```text
+browser display epoch ms - C++ capture_timestamp_ms
+```
+
+This is a practical capture-to-render estimate. It is best when the C++ service and frontend run on machines with synchronized clocks. On one machine, the measurement is usually good enough for tuning live latency.
+
+The latency hook lives in [useVideoLatencyMetrics.ts](/D:/Projects/cam_frontend/cam_frontend/src/modules/VideoStream/hooks/useVideoLatencyMetrics.ts).
+
+## Styling And Routing
+
+The app uses:
+
+- TanStack Start / TanStack Router
+- React
+- Tailwind CSS
+- Paraglide i18n generated files
+
+Routes live in [src/routes](/D:/Projects/cam_frontend/cam_frontend/src/routes).
+
+## Related Services
+
+- C++ camera service: `E:\Progects\test\camera_cv_service`
+- Signaling server: `D:\Projects\cam_serv`

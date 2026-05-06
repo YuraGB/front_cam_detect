@@ -2,17 +2,34 @@ import { useEffect } from "react";
 import { useWebsocket } from "./useWebsocket";
 import { usePc } from "./usePc";
 import parseWebRtcMessage from "../lib/parseWebRtcMessage";
+import { WEBRTC_TARGET_PEER_ID } from "#/constants";
+
+const OFFER_RETRY_DELAY_MS = 1000;
 
 export const useStreams = () => {
     const {connectionState, websockets, connectionControlsRef} = useWebsocket();
-    const {pc, cameraIds, registerVideoElement, registerOverlayCanvas} = usePc(websockets.current.webrtc);
+    const {pc, cameraIds, latencyMetrics, registerVideoElement, registerOverlayCanvas} = usePc(websockets.current.webrtc);
 
     useEffect(() => {
         const ws = websockets.current.webrtc;
         if (!ws || !pc || connectionState.webrtc !== "connected") return;
+        const streamControl = connectionControlsRef.current.webrtc;
+        let offerRetryTimer: number | null = null;
+
+        const requestOffer = () => {
+            if (ws.readyState !== WebSocket.OPEN || streamControl.connectRequested) {
+                return;
+            }
+
+            ws.send(JSON.stringify({
+                type: "viewer-join",
+                targetPeerId: WEBRTC_TARGET_PEER_ID,
+            }));
+            streamControl.connectRequested = true;
+        };
 
         const handler = async (event: MessageEvent): Promise<void> => {
-            connectionControlsRef.current.webrtc.lastMessageAt = Date.now();
+            streamControl.lastMessageAt = Date.now();
             const msg = parseWebRtcMessage(event.data);
             if (!msg) {
                 return;
@@ -20,6 +37,23 @@ export const useStreams = () => {
 
             try {
                 switch (msg.type) {
+                    case "registered":
+                        requestOffer();
+                        break;
+
+                    case "error":
+                        if (msg.code === "TARGET_NOT_FOUND") {
+                            streamControl.connectRequested = false;
+                            if (offerRetryTimer != null) {
+                                window.clearTimeout(offerRetryTimer);
+                            }
+                            offerRetryTimer = window.setTimeout(() => {
+                                offerRetryTimer = null;
+                                requestOffer();
+                            }, OFFER_RETRY_DELAY_MS);
+                        }
+                        break;
+
                     case "offer": {
                         await pc.setRemoteDescription({
                             type: "offer",
@@ -59,8 +93,12 @@ export const useStreams = () => {
         };
 
         ws.addEventListener("message", handler);
+        requestOffer();
 
         return () => {
+            if (offerRetryTimer != null) {
+                window.clearTimeout(offerRetryTimer);
+            }
             ws.removeEventListener("message", handler);
         };
         
@@ -68,6 +106,7 @@ export const useStreams = () => {
 
     return {
         cameraIds,
+        latencyMetrics,
         registerVideoElement,
         registerOverlayCanvas,
     };
