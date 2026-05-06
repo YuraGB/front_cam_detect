@@ -40,8 +40,18 @@ interface IceCandidateMessage {
     mid: string;
 }
 
+interface RegisteredMessage {
+    type: "registered";
+    peerId: string;
+}
 
-type WebRtcMessage = OfferMessage | AnswerMessage | IceCandidateMessage;
+interface SignalingErrorMessage {
+    type: "error";
+    code?: string;
+    message?: string;
+}
+
+type WebRtcMessage = OfferMessage | AnswerMessage | IceCandidateMessage | RegisteredMessage | SignalingErrorMessage;
 type CameraBinding = {
   stream: MediaStream;
   video: HTMLVideoElement | null;
@@ -52,6 +62,7 @@ type CameraBinding = {
 type UsePcResult = {
   pc: RTCPeerConnection | null;
   cameraIds: string[];
+  latencyMetrics: Partial<Record<string, { latencyMs: number; updatedAt: number }>>;
   registerVideoElement: (cameraId: string, element: HTMLVideoElement | null) => void;
   registerOverlayCanvas: (cameraId: string, element: HTMLCanvasElement | null) => void;
 };

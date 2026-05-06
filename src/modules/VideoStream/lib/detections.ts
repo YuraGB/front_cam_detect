@@ -17,7 +17,16 @@ export type TrackMapMessage = {
   tracks: TrackMapEntry[];
 };
 
-export type RtcDataMessage = DetectionFrameMessage | TrackMapMessage;
+export type VideoLatencySampleMessage = {
+  type: "video_latency_sample";
+  cameraId: string;
+  frameId: number;
+  captureTimestampMs: number;
+  encodedTimestampMs: number;
+  sampleIntervalMs: number | null;
+};
+
+export type RtcDataMessage = DetectionFrameMessage | TrackMapMessage | VideoLatencySampleMessage;
 
 const textDecoder = new TextDecoder();
 
@@ -107,6 +116,26 @@ export const parseRtcDataMessage = async (
       return {
         type: "track_map",
         tracks,
+      };
+    }
+
+    if (payload.type === "video_latency_sample") {
+      if (
+        typeof payload.camera_id !== "string" ||
+        !isFiniteNumber(payload.frame_id) ||
+        !isFiniteNumber(payload.capture_timestamp_ms) ||
+        !isFiniteNumber(payload.encoded_timestamp_ms)
+      ) {
+        return null;
+      }
+
+      return {
+        type: "video_latency_sample",
+        cameraId: payload.camera_id,
+        frameId: payload.frame_id,
+        captureTimestampMs: payload.capture_timestamp_ms,
+        encodedTimestampMs: payload.encoded_timestamp_ms,
+        sampleIntervalMs: isFiniteNumber(payload.sample_interval_ms) ? payload.sample_interval_ms : null,
       };
     }
 
