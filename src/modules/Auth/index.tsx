@@ -14,6 +14,7 @@ export function Auth() {
     setName,
     setEmail,
     setPassword,
+    session
   } = useAuthForm()
 
   if (loading) {
@@ -23,6 +24,15 @@ export function Auth() {
       </div>
     )
   }
+ 
+  if (session?.user) {
+    return null
+  }
+
+  console.log('Rendering Auth component')
+  console.log('Session:', session)
+  console.log('Loading:', loading)
+  console.log('Error:', error)
 
   return (
     <div className="flex justify-center py-10 px-4">

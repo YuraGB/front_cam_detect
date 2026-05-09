@@ -3,10 +3,15 @@ import { useCallback, useRef, useState } from "react";
 import type { DetectionFrameMessage } from "../lib/detections";
 import { clearCanvas, drawDetectionsOverlay } from "#/lib/drawDetections";
 
+type ScheduledOverlayDraw = {
+  type: "video-frame" | "animation-frame";
+  handle: number;
+};
+
 export const useHelperFunctions = () => {
   const [cameraIds, setCameraIds] = useState<string[]>([]);
 
-  const animationFramesRef = useRef<Partial<Record<string, number | null>>>({});
+  const animationFramesRef = useRef<Partial<Record<string, ScheduledOverlayDraw>>>({});
   const resizeObserversRef = useRef<Partial<Record<string, ResizeObserver | null>>>({});
   const cameraBindingsRef = useRef<Partial<Record<string, CameraBinding>>>({});       
   const trackMidToCameraRef = useRef<Partial<Record<string, string>>>({});
@@ -54,7 +59,6 @@ export const useHelperFunctions = () => {
   const clearOverlay = useCallback(
     (cameraId: string) => {
       const canvas = cameraBindingsRef.current[cameraId]?.canvas;
-      console.log(!canvas, "here")
       if (!canvas) {
         return;
       }
@@ -65,14 +69,34 @@ export const useHelperFunctions = () => {
     [syncOverlaySize]
   );
 
+  const cancelOverlayDraw = useCallback((cameraId: string) => {
+    const scheduled = animationFramesRef.current[cameraId];
+    if (!scheduled) {
+      return;
+    }
+
+    const video = cameraBindingsRef.current[cameraId]?.video;
+    const cancelVideoFrameCallback = video
+      ? Reflect.get(video, "cancelVideoFrameCallback")
+      : undefined;
+
+    if (scheduled.type === "video-frame" && typeof cancelVideoFrameCallback === "function") {
+      cancelVideoFrameCallback.call(video, scheduled.handle);
+    } else {
+      window.cancelAnimationFrame(scheduled.handle);
+    }
+
+    delete animationFramesRef.current[cameraId];
+  }, []);
+
   const scheduleOverlayDraw = useCallback(
     (cameraId: string) => {
       if (animationFramesRef.current[cameraId] != null) {
         return;
       }
 
-      animationFramesRef.current[cameraId] = window.requestAnimationFrame(() => {
-        animationFramesRef.current[cameraId] = null;
+      const drawOverlay = () => {
+        animationFramesRef.current[cameraId] = undefined;
 
         const binding = cameraBindingsRef.current[cameraId];
         const video = binding?.video;
@@ -89,7 +113,25 @@ export const useHelperFunctions = () => {
           sourceWidth: video.videoWidth || video.clientWidth || 1,
           sourceHeight: video.videoHeight || video.clientHeight || 1,
         });
-      });
+      };
+
+      const binding = cameraBindingsRef.current[cameraId];
+      const requestVideoFrameCallback = binding?.video
+        ? Reflect.get(binding.video, "requestVideoFrameCallback")
+        : undefined;
+
+      if (typeof requestVideoFrameCallback === "function" && binding?.video) {
+        animationFramesRef.current[cameraId] = {
+          type: "video-frame",
+          handle: requestVideoFrameCallback.call(binding.video, drawOverlay),
+        };
+        return;
+      }
+
+      animationFramesRef.current[cameraId] = {
+        type: "animation-frame",
+        handle: window.requestAnimationFrame(drawOverlay),
+      };
     },
     [clearOverlay, syncOverlaySize]
   );
@@ -197,6 +239,7 @@ export const useHelperFunctions = () => {
     ensureCameraBinding,
     syncOverlaySize,
     clearOverlay,
+    cancelOverlayDraw,
     scheduleOverlayDraw,
     attachTrackToCamera,
     applyTrackMap,

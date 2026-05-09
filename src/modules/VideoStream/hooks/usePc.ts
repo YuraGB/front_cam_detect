@@ -15,6 +15,7 @@ export const usePc = (ws?: WebSocket): UsePcResult => {
   const {
     attachTrackToCamera,
     clearOverlay,
+    cancelOverlayDraw,
     animationFramesRef,
     resizeObserversRef,
     cameraBindingsRef,        
@@ -85,20 +86,37 @@ export const usePc = (ws?: WebSocket): UsePcResult => {
           return;
         }
 
-        latestDetectionByCameraRef.current[message.cameraId] = message;
+        const previousDetectionFrame = latestDetectionByCameraRef.current[message.cameraId];
+        const hasDetections = message.detections.length > 0;
         ensureCameraBinding(message.cameraId);
-        scheduleOverlayDraw(message.cameraId);
 
-        const existingTimer = detectionClearTimersRef.current[message.cameraId];
-        if (existingTimer != null) {
-          window.clearTimeout(existingTimer);
+        if (hasDetections) {
+          latestDetectionByCameraRef.current[message.cameraId] = message;
+          scheduleOverlayDraw(message.cameraId);
+        } else if (!previousDetectionFrame?.detections.length) {
+          latestDetectionByCameraRef.current[message.cameraId] = message;
+          clearOverlay(message.cameraId);
         }
 
-        detectionClearTimersRef.current[message.cameraId] = window.setTimeout(() => {
-          latestDetectionByCameraRef.current[message.cameraId] = null;
-          detectionClearTimersRef.current[message.cameraId] = null;
-          clearOverlay(message.cameraId);
-        }, DETECTION_STALE_TIMEOUT_MS);
+        if (hasDetections) {
+          const existingTimer = detectionClearTimersRef.current[message.cameraId];
+          if (existingTimer != null) {
+            window.clearTimeout(existingTimer);
+            detectionClearTimersRef.current[message.cameraId] = null;
+          }
+
+          detectionClearTimersRef.current[message.cameraId] = window.setTimeout(() => {
+            latestDetectionByCameraRef.current[message.cameraId] = null;
+            detectionClearTimersRef.current[message.cameraId] = null;
+            clearOverlay(message.cameraId);
+          }, DETECTION_STALE_TIMEOUT_MS);
+        } else if (!previousDetectionFrame?.detections.length) {
+          const existingTimer = detectionClearTimersRef.current[message.cameraId];
+          if (existingTimer != null) {
+            window.clearTimeout(existingTimer);
+            detectionClearTimersRef.current[message.cameraId] = null;
+          }
+        }
       };
     };
 
@@ -107,11 +125,7 @@ export const usePc = (ws?: WebSocket): UsePcResult => {
 
   useEffect(() => {
     return () => {
-      Object.values(animationFramesRef.current).forEach((frameId) => {
-        if (frameId != null) {
-          window.cancelAnimationFrame(frameId);
-        }
-      });
+      Object.keys(animationFramesRef.current).forEach(cancelOverlayDraw);
 
       Object.values(detectionClearTimersRef.current).forEach((timerId) => {
         if (timerId != null) {
@@ -144,7 +158,7 @@ export const usePc = (ws?: WebSocket): UsePcResult => {
       dcRef.current?.close();
       dcRef.current = null;
     };
-  }, []);
+  }, [animationFramesRef, cameraBindingsRef, cancelOverlayDraw, detectionClearTimersRef, resizeObserversRef]);
 
   const registerLiveVideoElement = useCallback(
     (cameraId: string, element: HTMLVideoElement | null) => {
