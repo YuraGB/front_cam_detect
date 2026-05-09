@@ -1,25 +1,9 @@
 import { createFileRoute, Link, useRouter } from '@tanstack/react-router'
-import type { Router } from '@tanstack/react-router'
 import { useState } from 'react'
-import { flushSync } from 'react-dom'
 
 export const Route = createFileRoute('/test/')({
   component: RouteComponent,
 })
-
-export function navigateWithTransition(router: Router<any>, to: string) {
-  if (!('startViewTransition' in document)) {
-    router.navigate({ to })
-    return
-  }
-
-  document.startViewTransition(() => {
-    flushSync(() => {
-      console.log('Navigating with view transition to', to)
-      router.navigate({ to, viewTransition: true })
-    })
-  })
-}
 
 function RouteComponent() {
   const router = useRouter()
@@ -31,14 +15,14 @@ function RouteComponent() {
       <button
         onClick={() =>
           router.navigate({
-            to: '/test',
+            to: '/',
             viewTransition: {
               types: ['slide-right'],
             },
           })
         }
       >
-        Back
+        Home
       </button>
       <div className="grid w-full gap-4 rounded-xl border border-[var(--line)] bg-[var(--header-bg)] p-4 grid-cols-2">
         <ul>
