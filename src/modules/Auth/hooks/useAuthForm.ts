@@ -1,6 +1,7 @@
 import { authClient } from '#/lib/auth-client'
 import { useRouter } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
+import { useAuthFunctions } from './useAuthFunctions'
 
 export const useAuthForm = () => {
   const { data: session } = authClient.useSession()
@@ -11,6 +12,7 @@ export const useAuthForm = () => {
   const [name, setName] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const { emailSignIn, emailSignUp } = useAuthFunctions()
 
   useEffect(() => {
     if (session?.user) {
@@ -30,18 +32,11 @@ export const useAuthForm = () => {
 
     try {
       if (isSignUp) {
-        result = await authClient.signUp.email({
-          email,
-          password,
-          name,
-        })        
+        result = await emailSignUp(email, password, name)      
       } else {
-        result = await authClient.signIn.email({
-          email,
-          password,
-        })         
+        result = await emailSignIn(email, password)       
       }
-
+      
       if (result.error) {
         setError(result.error.message || 'An error occurred during authentication')
         setLoading(false)

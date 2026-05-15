@@ -1,24 +1,17 @@
-import { createFileRoute, redirect } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router'
 import { Auth } from '#/modules/Auth'
-import { getSessionFn } from './profile'
+import { authBeforeLoader } from '#/lib/authBeforeLoad'
 
 export const Route = createFileRoute('/')({
   component: App,
   ssr: true,
-  beforeLoad: async () => {
-    // is Authenticated? If so, redirect to profile
-    const session = await getSessionFn()
-
-    if (session.data?.user) {
-      throw redirect({ to: '/profile' })
-    }
-  },
+  beforeLoad: async () => await authBeforeLoader({ redirectToIfAuth: {to: '/profile'} }),
 })
 
 function App() {
   return (
-    <main className="page-wrap px-4 pb-8 pt-14">
+    <article className="page-wrap px-4 pb-8 pt-14">
       <Auth />
-    </main>
+    </article>
   )
 }

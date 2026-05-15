@@ -1,7 +1,7 @@
 import { VideoStream } from '#/modules/VideoStream'
 import { createFileRoute } from '@tanstack/react-router'
 
-export const Route = createFileRoute('/video_stream/')({
+export const Route = createFileRoute('/(auth)/video_stream/')({
   component: RouteComponent,
   ssr: false,
 })

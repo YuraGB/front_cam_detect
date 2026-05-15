@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 
-export const Route = createFileRoute('/demo/tanstack-query')({
+export const Route = createFileRoute('/(auth)/demo/tanstack-query')({
   component: TanStackQueryDemo,
 })
 

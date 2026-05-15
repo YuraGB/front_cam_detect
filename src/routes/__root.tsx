@@ -67,7 +67,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       <body className="font-sans antialiased [overflow-wrap:anywhere] selection:bg-[rgba(79,184,178,0.24)] ">
         <TanStackQueryProvider>
           <Header />
-          <main className="container m-auto flex min-h-screen flex-col py-10 px-4">
+          <main className="container m-auto flex min-h-screen flex-col py-10 px-4 ">
             {children || <Outlet />}
           </main>
           <Footer />
