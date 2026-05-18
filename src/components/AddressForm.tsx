@@ -1,7 +1,6 @@
-import { useAppForm } from "#/hooks/demo.form"
+import { useAppForm } from '#/hooks/demo.form'
 
 export function AddressForm({ user }: { user: any }) {
-    console.log('User in AddressForm:', user) // Debugging line to check user data
   const form = useAppForm({
     defaultValues: {
       fullName: user?.name || '',
@@ -17,10 +16,8 @@ export function AddressForm({ user }: { user: any }) {
     },
     validators: {
       onBlur: ({ value }) => {
-        const errors = {
+        const errors: { fields: Record<string, string> } = {
           fields: {},
-        } as {
-          fields: Record<string, string>
         }
         if (value.fullName.trim().length === 0) {
           errors.fields.fullName = 'Full name is required'
@@ -36,10 +33,8 @@ export function AddressForm({ user }: { user: any }) {
   })
 
   return (
-    <div
-      className="flex items-center justify-center p-4 text-white"
-    >
-      <div className="w-full max-w-2xl p-8 rounded-xl backdrop-blur-md bg-black/50 shadow-xl border-8 border-black/10">
+    <div className="flex items-center justify-center p-4 text-white">
+      <div className="w-full max-w-2xl p-8 rounded-xl border-8 border-black/10">
         <form
           onSubmit={(e) => {
             e.preventDefault()

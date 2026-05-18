@@ -124,6 +124,36 @@ Live video latency sample:
 }
 ```
 
+Pipeline metrics:
+
+```json
+{
+  "type": "pipeline_metrics",
+  "scope": "video",
+  "camera_id": "camera_0",
+  "interval_ms": 1000,
+  "capture_fps": 29.8,
+  "encode_fps": 29.8,
+  "avg_capture_delay_ms": 4.2,
+  "avg_h264_encode_ms": 3.1,
+  "dropped_stale_frames": 0,
+  "total_dropped_stale_frames": 0
+}
+```
+
+```json
+{
+  "type": "pipeline_metrics",
+  "scope": "inference",
+  "interval_ms": 1000,
+  "submitted_frames": 30,
+  "dropped_pending_frames": 20,
+  "processed_frames": 8,
+  "avg_inference_ms": 76.3,
+  "max_inference_ms": 91.2
+}
+```
+
 Parsing lives in [detections.ts](/D:/Projects/cam_frontend/cam_frontend/src/modules/VideoStream/lib/detections.ts).
 
 ## Latency Metrics
@@ -141,6 +171,17 @@ browser display epoch ms - C++ capture_timestamp_ms
 This is a practical capture-to-render estimate. It is best when the C++ service and frontend run on machines with synchronized clocks. On one machine, the measurement is usually good enough for tuning live latency.
 
 The latency hook lives in [useVideoLatencyMetrics.ts](/D:/Projects/cam_frontend/cam_frontend/src/modules/VideoStream/hooks/useVideoLatencyMetrics.ts).
+
+## Pipeline Metrics
+
+The frontend also displays low-rate service metrics:
+
+- capture FPS and capture delay
+- H264 encode time
+- stale live frame drops
+- YOLO processed frames, skipped pending frames, and inference time
+
+Metrics state lives in [usePipelineMetrics.ts](/D:/Projects/cam_frontend/cam_frontend/src/modules/VideoStream/hooks/usePipelineMetrics.ts), and rendering lives in [PipelineMetricsPanel.tsx](/D:/Projects/cam_frontend/cam_frontend/src/modules/VideoStream/components/PipelineMetricsPanel.tsx).
 
 ## Styling And Routing
 

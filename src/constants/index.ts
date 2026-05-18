@@ -20,13 +20,12 @@ export const RTCPeerConnectionConfig: RTCConfiguration = {
   iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
 };
 
-
 const HEARTBEAT_INTERVAL_MS = 5000;
 const STREAM_INACTIVITY_TIMEOUT_MS = 60000 // 1 minute;
 const RECONNECT_BASE_DELAY_MS = 500;
 const RECONNECT_MAX_DELAY_MS = 10000;
 const STATS_PUBLISH_INTERVAL_MS = 500;
-
+const OFFER_RETRY_DELAY_MS = 1000;
 const DETECTION_STALE_TIMEOUT_MS = 1500;
 
 export {
@@ -35,5 +34,6 @@ export {
   RECONNECT_BASE_DELAY_MS,
   RECONNECT_MAX_DELAY_MS,
   STATS_PUBLISH_INTERVAL_MS,
+  OFFER_RETRY_DELAY_MS,
   DETECTION_STALE_TIMEOUT_MS,
 }

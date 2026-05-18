@@ -3,7 +3,7 @@ import {
   redirect,
   useLoaderData,
 } from '@tanstack/react-router'
-import {AddressForm} from '#/components/AddressForm'
+import { AddressForm } from '#/components/AddressForm'
 import { getSessionFn } from '#/lib/getSession'
 import { useAuthFunctions } from '#/modules/Auth/hooks/useAuthFunctions'
 import { UserProfile } from '#/components/UserProfile'
@@ -31,8 +31,7 @@ function RouteComponent() {
   const user = session.data?.user
 
   return (
-    <article className="page-wrap px-4 pb-8 pt-14"> 
-      
+    <article className="page-wrap px-4 pb-8 pt-14">
       <UserProfile userName={user?.name || 'User'} onSignOut={signOut} />
       <AddressForm user={user} />
     </article>

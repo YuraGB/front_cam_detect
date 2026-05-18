@@ -9,7 +9,7 @@ import viteReact from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 
 const config = defineConfig({
-    server: {
+  server: {
     open: true,
   },
   plugins: [

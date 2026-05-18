@@ -6,6 +6,6 @@
   "language_label": "Sprache",
   "current_locale": "Aktuelle Sprache: {locale}",
   "learn_router": "Paraglide JS lernen",
-    "hello": "Hallo Welt!",
+  "hello": "Hallo Welt!",
   "learn_inlang": "Inlang lernen"
 }

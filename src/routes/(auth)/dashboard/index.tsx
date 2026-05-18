@@ -5,10 +5,10 @@ export const Route = createFileRoute('/(auth)/dashboard/')({
 })
 
 function RouteComponent() {
-    return (
-        <div className="page-wrap">
-            <h1>Dashboard</h1>
-            <p>Welcome to your dashboard! This is a protected route.</p>
-        </div>
-    )
+  return (
+    <div className="page-wrap">
+      <h1>Dashboard</h1>
+      <p>Welcome to your dashboard! This is a protected route.</p>
+    </div>
+  )
 }

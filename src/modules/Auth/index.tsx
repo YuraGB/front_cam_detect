@@ -14,7 +14,6 @@ export function Auth() {
     setName,
     setEmail,
     setPassword,
-    session
   } = useAuthForm()
 
   if (loading) {
@@ -24,15 +23,6 @@ export function Auth() {
       </div>
     )
   }
- 
-  if (session?.user) {
-    return null
-  }
-
-  console.log('Rendering Auth component')
-  console.log('Session:', session)
-  console.log('Loading:', loading)
-  console.log('Error:', error)
 
   return (
     <div className="flex justify-center py-10 px-4">
@@ -116,16 +106,7 @@ export function Auth() {
             disabled={loading}
             className="w-full h-9 px-4 text-sm font-medium text-white bg-neutral-900 hover:bg-neutral-800 dark:bg-neutral-50 dark:text-neutral-900 dark:hover:bg-neutral-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? (
-              <span className="flex items-center justify-center gap-2">
-                <span className="h-4 w-4 animate-spin rounded-full border-2 border-neutral-400 border-t-white dark:border-neutral-600 dark:border-t-neutral-900" />
-                <span>Please wait</span>
-              </span>
-            ) : isSignUp ? (
-              'Create account'
-            ) : (
-              'Sign in'
-            )}
+            {isSignUp ? 'Create account' : 'Sign in'}
           </button>
         </form>
 

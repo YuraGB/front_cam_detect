@@ -8,8 +8,8 @@ export const Route = createFileRoute('/(auth)/video_stream/')({
 
 function RouteComponent() {
   return (
-        <main className="page-wrap px-4 pb-8 pt-14">
-          <VideoStream />
-        </main>
+    <main className="page-wrap px-4 pb-8 pt-14">
+      <VideoStream />
+    </main>
   )
 }

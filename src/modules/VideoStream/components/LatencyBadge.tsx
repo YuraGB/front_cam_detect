@@ -1,13 +1,13 @@
-import { memo } from "react";
+import { memo } from 'react'
 
 type LatencyBadgeProps = {
-  latencyMs?: number;
-};
+  latencyMs?: number
+}
 
 export const LatencyBadge = memo(({ latencyMs }: LatencyBadgeProps) => (
-  <span style={{ fontVariantNumeric: "tabular-nums" }}>
-    latency: {latencyMs == null ? "waiting..." : `${latencyMs} ms`}
+  <span style={{ fontVariantNumeric: 'tabular-nums' }}>
+    latency: {latencyMs == null ? 'waiting...' : `${latencyMs} ms`}
   </span>
-));
+))
 
-LatencyBadge.displayName = "LatencyBadge";
+LatencyBadge.displayName = 'LatencyBadge'
