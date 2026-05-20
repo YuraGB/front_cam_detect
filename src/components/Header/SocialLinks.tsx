@@ -1,11 +1,10 @@
-import { Link } from '@tanstack/react-router'
 
 /**
  * SocialLinks component - Social media icon buttons
  */
 export default function SocialLinks() {
   return (
-    <div className="hidden items-center gap-1.5 sm:block">
+    <div className="hidden items-center gap-1.5 sm:flex">
       <a
         href="https://x.com/tan_stack"
         target="_blank"
@@ -20,14 +19,6 @@ export default function SocialLinks() {
           />
         </svg>
       </a>
-      <Link
-        to="/test"
-        className="nav-link"
-        viewTransition={true}
-        activeProps={{ className: 'nav-link is-active' }}
-      >
-        Test
-      </Link>
       <a
         href="https://github.com/TanStack"
         target="_blank"

@@ -14,6 +14,7 @@ import {
   emptyConnectionState,
   getStablePeerId,
 } from '../lib/utils'
+import { logger } from '#/lib/frontend_logger'
 
 export const useWebsocket = () => {
   const [connectionState, setConnectionState] =
@@ -60,7 +61,7 @@ export const useWebsocket = () => {
       }
       wsRef.current[streamName] = socket
 
-      console.info('[WS] create', {
+      logger.info('[WS] create', {
         streamName,
         streamUrl,
         attemptNumber,
@@ -73,7 +74,7 @@ export const useWebsocket = () => {
 
       socket.onopen = () => {
         if (!isCurrentSocket()) {
-          console.info('[WS] ignoring open from stale socket', {
+          logger.info('[WS] ignoring open from stale socket', {
             streamName,
             streamUrl,
             attemptNumber,
@@ -81,7 +82,7 @@ export const useWebsocket = () => {
           socket.close()
           return
         }
-        console.info('[WS] open', {
+        logger.info('[WS] open', {
           streamName,
           streamUrl,
           attemptNumber,
@@ -122,7 +123,7 @@ export const useWebsocket = () => {
 
       socket.onerror = () => {
         if (!isCurrentSocket()) {
-          console.info('[WS] ignoring error from stale socket', {
+          logger.info('[WS] ignoring error from stale socket', {
             streamName,
             streamUrl,
             attemptNumber,
@@ -130,7 +131,7 @@ export const useWebsocket = () => {
           })
           return
         }
-        console.warn('[WS] error', {
+        logger.warn('[WS] error', {
           streamName,
           streamUrl,
           attemptNumber,
@@ -149,7 +150,7 @@ export const useWebsocket = () => {
 
       socket.onclose = (event) => {
         if (!isCurrentSocket()) {
-          console.info('[WS] ignoring close from stale socket', {
+          logger.info('[WS] ignoring close from stale socket', {
             streamName,
             streamUrl,
             attemptNumber,
@@ -159,7 +160,7 @@ export const useWebsocket = () => {
           })
           return
         }
-        console.warn('[WS] close', {
+        logger.warn('[WS] close', {
           streamName,
           streamUrl,
           attemptNumber,
@@ -179,7 +180,7 @@ export const useWebsocket = () => {
         }
 
         if (event.code === 4001 && event.reason === 'peer replaced') {
-          console.warn(
+          logger.warn(
             '[WS] peer replaced on current socket; waiting for active replacement instead of reconnecting',
             {
               streamName,
@@ -205,7 +206,7 @@ export const useWebsocket = () => {
           window.clearTimeout(streamControl.reconnectTimer)
         }
 
-        console.info('[WS] reconnect scheduled', {
+        logger.info('[WS] reconnect scheduled', {
           streamName,
           streamUrl,
           nextAttemptNumber: streamControl.reconnectAttempt + 1,
@@ -224,7 +225,7 @@ export const useWebsocket = () => {
       isDisposedRef.current = true
       Object.values(wsRef.current).forEach((ws) => {
         if (ws.OPEN === ws.readyState) {
-          console.info('[WS] cleanup close', {
+          logger.info('[WS] cleanup close', {
             url: ws.url,
             readyState: ws.readyState,
           })

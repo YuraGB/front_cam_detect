@@ -1,4 +1,5 @@
 import { useAppForm } from '#/hooks/demo.form'
+import {logger} from '#/lib/frontend_logger'
 
 export function AddressForm({ user }: { user: any }) {
   const form = useAppForm({
@@ -26,7 +27,7 @@ export function AddressForm({ user }: { user: any }) {
       },
     },
     onSubmit: ({ value }) => {
-      console.log(value)
+      logger.log(value)
       // Show success message
       alert('Form submitted successfully!')
     },

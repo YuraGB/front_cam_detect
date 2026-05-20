@@ -1,9 +1,5 @@
+import type { InferencePipelineMetricsMessage, PipelineMetricsMessage, VideoPipelineMetricsMessage } from '#/types'
 import { useCallback, useState } from 'react'
-import type {
-  InferencePipelineMetricsMessage,
-  PipelineMetricsMessage,
-  VideoPipelineMetricsMessage,
-} from '../lib/detections'
 
 export type PipelineMetricsState = {
   video: Partial<

@@ -11,7 +11,6 @@ export const authBeforeLoader = async ({
 }) => {
   // is Authenticated? If so, redirect to profile
   const session = await getSessionFn()
-  console.log('session in beforeLoader', session, { redirectToIfAuth, redirectToIfNotAuth })
   if (session.data?.user && redirectToIfAuth) {
     throw redirect(redirectToIfAuth)
   }

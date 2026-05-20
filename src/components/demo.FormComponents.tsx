@@ -106,6 +106,7 @@ export function Select({
 }) {
   const field = useFieldContext<string>()
   const errors = useStore(field.store, (state) => state.meta.errors)
+  console.log
 
   return (
     <div>
@@ -132,6 +133,7 @@ export function Select({
           </ShadcnSelect.SelectGroup>
         </ShadcnSelect.SelectContent>
       </ShadcnSelect.Select>
+    
       {field.state.meta.isTouched && <ErrorMessages errors={errors} />}
     </div>
   )
