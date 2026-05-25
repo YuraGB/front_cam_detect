@@ -1,34 +1,7 @@
 import { memo, useCallback } from 'react'
 import { LatencyBadge } from './LatencyBadge'
 import { PipelineMetricsPanel } from './PipelineMetricsPanel'
-
-type CameraStreamViewProps = {
-  cameraId: string
-  latencyMs?: number
-  videoMetrics?: {
-    captureFps: number
-    encodeFps: number
-    avgCaptureDelayMs: number
-    avgH264EncodeMs: number
-    droppedStaleFrames: number
-    totalDroppedStaleFrames: number
-  }
-  inferenceMetrics: {
-    submittedFrames: number
-    droppedPendingFrames: number
-    processedFrames: number
-    avgInferenceMs: number
-    maxInferenceMs: number
-  } | null
-  registerVideoElement: (
-    cameraId: string,
-    element: HTMLVideoElement | null,
-  ) => void
-  registerOverlayCanvas: (
-    cameraId: string,
-    element: HTMLCanvasElement | null,
-  ) => void
-}
+import type { CameraStreamViewProps } from '#/types'
 
 export const CameraStreamView = memo(
   ({

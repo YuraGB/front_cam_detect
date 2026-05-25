@@ -1,5 +1,5 @@
 import type { StreamType } from '#/constants'
-import type { Detection } from '#/lib/drawDetections'
+import type { Detection } from '#/modules/VideoStream/lib/drawDetections'
 import type { StreamConnectionControl, StreamHealth } from '#/types'
 
 const createStreamControl = (): StreamConnectionControl => ({

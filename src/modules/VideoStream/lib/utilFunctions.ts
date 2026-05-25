@@ -1,6 +1,7 @@
 import type { StreamType, StreamURL } from '#/constants'
-import type { Detection } from '#/lib/drawDetections'
-import { getStreamName } from '#/lib/getStreamName'
+import { authClient } from '#/lib/auth-client'
+import type { Detection } from '#/modules/VideoStream/lib/drawDetections'
+import { getStreamName } from '#/modules/VideoStream/lib/getStreamName'
 
 const textDecoder = new TextDecoder()
 const frameContextCache = new WeakMap<
@@ -241,11 +242,17 @@ const tryExtractFramePayloadBySignature = (
  * @param streamUrl
  * @returns
  */
-const createSocket = (
+const createSocket = async (
   streamUrl: StreamURL,
-): { socket: WebSocket; streamName: StreamType } => {
+): Promise<{ socket: WebSocket; streamName: StreamType }> => {
   const streamName = getStreamName(streamUrl)
-  const socket = new WebSocket(streamUrl)
+  const token = await authClient.token()
+
+  if (!token || token.data?.token == null) {
+    throw new Error('Failed to obtain authentication token')
+  }
+
+  const socket = new WebSocket(`${streamUrl}&token=${token.data.token}`)
 
   return {
     socket,

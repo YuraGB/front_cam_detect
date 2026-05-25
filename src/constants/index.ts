@@ -1,5 +1,12 @@
-const STREAM_TYPES = ['liveStream', 'detectionStream', 'fileFrames', 'webrtc'] as const
-const STREAM_URLS =  [
+import { env } from '#/env'
+
+const STREAM_TYPES = [
+  'liveStream',
+  'detectionStream',
+  'fileFrames',
+  'webrtc',
+] as const
+const STREAM_URLS = [
   // 'ws://localhost:3002/ws?type=liveStream',
   // 'ws://localhost:3002/ws?type=detectionStream',
   // 'ws://localhost:3002/ws/file-frames',
@@ -7,26 +14,34 @@ const STREAM_URLS =  [
   'ws://127.0.0.1:3001/ws?type=webrtc',
 ] as const
 
-export type StreamType = typeof STREAM_TYPES[number];
-export type StreamURL = typeof STREAM_URLS[number];
+export type StreamType = (typeof STREAM_TYPES)[number]
+export type StreamURL = (typeof STREAM_URLS)[number]
 
-export const WEBRTC_TARGET_PEER_ID = "camera-cv-service";
+export const WEBRTC_TARGET_PEER_ID = 'camera-cv-service'
 
-export type VideoResources = Partial<Record<string, Partial<Record<StreamType, HTMLCanvasElement>>>>;
+export type VideoResources = Partial<
+  Record<string, Partial<Record<StreamType, HTMLCanvasElement>>>
+>
 
-export { STREAM_TYPES, STREAM_URLS}
+export { STREAM_TYPES, STREAM_URLS }
 
 export const RTCPeerConnectionConfig: RTCConfiguration = {
-  iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
-};
+  iceServers: [{ urls: 'stun:stun.l.google.com:19302' }],
+}
 
-const HEARTBEAT_INTERVAL_MS = 5000;
+const HEARTBEAT_INTERVAL_MS = 5000
 const STREAM_INACTIVITY_TIMEOUT_MS = 60000 // 1 minute;
-const RECONNECT_BASE_DELAY_MS = 500;
-const RECONNECT_MAX_DELAY_MS = 10000;
-const STATS_PUBLISH_INTERVAL_MS = 500;
-const OFFER_RETRY_DELAY_MS = 1000;
-const DETECTION_STALE_TIMEOUT_MS = 1500;
+const RECONNECT_BASE_DELAY_MS = 500
+const RECONNECT_MAX_DELAY_MS = 10000
+const STATS_PUBLISH_INTERVAL_MS = 500
+const OFFER_RETRY_DELAY_MS = 1000
+const DETECTION_STALE_TIMEOUT_MS = 1500
+
+const JWT_ISSUER = env.VITE_JWT_ISSUER || 'better-auth'
+const JWT_AUDIENCE = env.VITE_JWT_AUDIENCE || 'signaling'
+
+const JWT_PRIVATE_KEY = env.VITE_JWT_PRIVATE_KEY
+const JWT_PUBLIC_KEY = env.VITE_JWT_PUBLIC_KEY
 
 export {
   HEARTBEAT_INTERVAL_MS,
@@ -36,4 +51,8 @@ export {
   STATS_PUBLISH_INTERVAL_MS,
   OFFER_RETRY_DELAY_MS,
   DETECTION_STALE_TIMEOUT_MS,
+  JWT_ISSUER,
+  JWT_AUDIENCE,
+  JWT_PRIVATE_KEY,
+  JWT_PUBLIC_KEY,
 }

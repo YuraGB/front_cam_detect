@@ -1,113 +1,131 @@
-import type { Detection } from "#/lib/drawDetections";
+import type { Detection } from '#/modules/VideoStream/lib/drawDetections'
 
-type StreamHealth = "connecting" | "connected" | "reconnecting" | "stalled" | "disconnected";
+type StreamHealth =
+  | 'connecting'
+  | 'connected'
+  | 'reconnecting'
+  | 'stalled'
+  | 'disconnected'
 
 type StreamMetric = {
-  fps: number;
-  rendered: number;
-  dropped: number;
-  decodeMs: number;
-  latencyMs: number | null;
-};
+  fps: number
+  rendered: number
+  dropped: number
+  decodeMs: number
+  latencyMs: number | null
+}
 
 type StreamMetricMutable = StreamMetric & {
-  lastRenderedAt: number;
-};
+  lastRenderedAt: number
+}
 
 type VideoLatencyMetric = {
-  latencyMs: number;
-  captureTimestampMs: number;
-  encodedTimestampMs: number;
-  displayTimestampMs: number;
-  frameId: number;
-  updatedAt: number;
-};
+  latencyMs: number
+  captureTimestampMs: number
+  encodedTimestampMs: number
+  displayTimestampMs: number
+  frameId: number
+  updatedAt: number
+}
 
 type ScheduledFrameCallback = {
-  type: "video-frame" | "animation-frame";
-  handle: number;
-};
+  type: 'video-frame' | 'animation-frame'
+  handle: number
+}
 
 type StreamConnectionControl = {
-  ws: WebSocket | null;
-  reconnectTimer: number | null;
-  heartbeatTimer: number | null;
-  reconnectAttempt: number;
-  lastMessageAt: number;
-  isRegistered: boolean;
-  connectRequested: boolean;
-  peerId: string | null;
-};
+  ws: WebSocket | null
+  reconnectTimer: number | null
+  heartbeatTimer: number | null
+  reconnectAttempt: number
+  lastMessageAt: number
+  isRegistered: boolean
+  connectRequested: boolean
+  peerId: string | null
+}
 
 interface OfferMessage {
-    type: "offer";
-    sdp: string;
-    peerId: string;
+  type: 'offer'
+  sdp: string
+  peerId: string
 }
 
 interface AnswerMessage {
-    type: "answer";
-    sdp: string;
+  type: 'answer'
+  sdp: string
 }
 
 interface IceCandidateMessage {
-    type: "ice-candidate";
-    candidate: string;
-    mid: string;
+  type: 'ice-candidate'
+  candidate: string
+  mid: string
 }
 
 interface RegisteredMessage {
-    type: "registered";
-    peerId: string;
+  type: 'registered'
+  peerId: string
 }
 
 interface SignalingErrorMessage {
-    type: "error";
-    code?: string;
-    message?: string;
+  type: 'error'
+  code?: string
+  message?: string
 }
 
-type WebRtcMessage = OfferMessage | AnswerMessage | IceCandidateMessage | RegisteredMessage | SignalingErrorMessage;
+type WebRtcMessage =
+  | OfferMessage
+  | AnswerMessage
+  | IceCandidateMessage
+  | RegisteredMessage
+  | SignalingErrorMessage
 type CameraBinding = {
-  stream: MediaStream;
-  video: HTMLVideoElement | null;
-  canvas: HTMLCanvasElement | null;
-  layoutHandler: (() => void) | null;
-};
+  stream: MediaStream
+  video: HTMLVideoElement | null
+  canvas: HTMLCanvasElement | null
+  layoutHandler: (() => void) | null
+}
 
 type UsePcResult = {
-  pc: RTCPeerConnection | null;
-  cameraIds: string[];
-  latencyMetrics: Partial<Record<string, { latencyMs: number; updatedAt: number }>>;
-  registerVideoElement: (cameraId: string, element: HTMLVideoElement | null) => void;
-  registerOverlayCanvas: (cameraId: string, element: HTMLCanvasElement | null) => void;
-};
+  pc: RTCPeerConnection | null
+  cameraIds: string[]
+  latencyMetrics: Partial<
+    Record<string, { latencyMs: number; updatedAt: number }>
+  >
+  registerVideoElement: (
+    cameraId: string,
+    element: HTMLVideoElement | null,
+  ) => void
+  registerOverlayCanvas: (
+    cameraId: string,
+    element: HTMLCanvasElement | null,
+  ) => void
+}
 type ScheduledOverlayDraw = {
-  type: "video-frame" | "animation-frame";
-  handle: number;
-};
+  type: 'video-frame' | 'animation-frame'
+  handle: number
+}
 
 type VideoMetrics = {
-  captureFps: number;
-  encodeFps: number;
-  avgCaptureDelayMs: number;
-  avgH264EncodeMs: number;
-  droppedStaleFrames: number;
-  totalDroppedStaleFrames: number;
-};
+  captureFps: number
+  encodeFps: number
+  avgCaptureDelayMs: number
+  avgH264EncodeMs: number
+  droppedStaleFrames: number
+  totalDroppedStaleFrames: number
+}
 
 type InferenceMetrics = {
-  submittedFrames: number;
-  droppedPendingFrames: number;
-  processedFrames: number;
-  avgInferenceMs: number;
-  maxInferenceMs: number;
-};
+  submittedFrames: number
+  droppedPendingFrames: number
+  processedFrames: number
+  avgInferenceMs: number
+  maxInferenceMs: number
+}
 
 type PipelineMetricsPanelProps = {
-  videoMetrics?: VideoMetrics;
-  inferenceMetrics: InferenceMetrics | null;
-};
+  videoMetrics?: VideoMetrics
+  inferenceMetrics: InferenceMetrics | null
+}
 
 export type DetectionFrameMessage = {
   type: 'detection_frame'
@@ -173,20 +191,52 @@ export type RtcDataMessage =
   | VideoLatencySampleMessage
   | PipelineMetricsMessage
 
+type CameraStreamViewProps = {
+  cameraId: string
+  latencyMs?: number
+  videoMetrics?: {
+    captureFps: number
+    encodeFps: number
+    avgCaptureDelayMs: number
+    avgH264EncodeMs: number
+    droppedStaleFrames: number
+    totalDroppedStaleFrames: number
+  }
+  inferenceMetrics: {
+    submittedFrames: number
+    droppedPendingFrames: number
+    processedFrames: number
+    avgInferenceMs: number
+    maxInferenceMs: number
+  } | null
+  registerVideoElement: (
+    cameraId: string,
+    element: HTMLVideoElement | null,
+  ) => void
+  registerOverlayCanvas: (
+    cameraId: string,
+    element: HTMLCanvasElement | null,
+  ) => void
+}
 
+type LatencyBadgeProps = {
+  latencyMs?: number
+}
 
-export type { 
-  StreamHealth, 
+export type {
+  StreamHealth,
   StreamMetric,
-   StreamMetricMutable, 
-   StreamConnectionControl,
-    WebRtcMessage, 
-    CameraBinding, 
-    UsePcResult,
-     VideoLatencyMetric, 
-     ScheduledFrameCallback, 
-     ScheduledOverlayDraw,
-      VideoMetrics,
-       InferenceMetrics, 
-       PipelineMetricsPanelProps 
-      };
+  StreamMetricMutable,
+  StreamConnectionControl,
+  WebRtcMessage,
+  CameraBinding,
+  UsePcResult,
+  VideoLatencyMetric,
+  ScheduledFrameCallback,
+  ScheduledOverlayDraw,
+  VideoMetrics,
+  InferenceMetrics,
+  PipelineMetricsPanelProps,
+  CameraStreamViewProps,
+  LatencyBadgeProps,
+}

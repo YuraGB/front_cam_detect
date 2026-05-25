@@ -22,6 +22,10 @@ export const useStreams = () => {
     const streamControl = connectionControlsRef.current.webrtc
     let offerRetryTimer: number | null = null
 
+    /**
+     * Requests an offer from the remote peer.
+     * @returns
+     */
     const requestOffer = () => {
       if (ws.readyState !== WebSocket.OPEN || streamControl.connectRequested) {
         return
@@ -36,6 +40,13 @@ export const useStreams = () => {
       streamControl.connectRequested = true
     }
 
+    /**
+     * Handles incoming WebRTC signaling messages from the remote peer,
+     * including 'registered', 'offer', 'answer', 'ice-candidate', and 'error' messages,
+     * to manage the WebRTC connection lifecycle and respond appropriately to connection events and errors.
+     * @param {MessageEvent} event - The incoming message event containing the WebRTC signaling message data.
+     * @returns {Promise<void>} - A promise that resolves when the message has been handled.
+     */
     const handler = async (event: MessageEvent): Promise<void> => {
       streamControl.lastMessageAt = Date.now()
       const msg = parseWebRtcMessage(event.data)

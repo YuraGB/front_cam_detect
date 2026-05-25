@@ -14,6 +14,10 @@ export const env = createEnv({
 
   client: {
     VITE_APP_TITLE: z.string().min(1).optional(),
+    VITE_JWT_ISSUER: z.string().url().optional(),
+    VITE_JWT_AUDIENCE: z.string().optional(),
+    VITE_JWT_PRIVATE_KEY: z.string().optional(),
+    VITE_JWT_PUBLIC_KEY: z.string().optional(),
   },
 
   /**

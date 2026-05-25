@@ -6,7 +6,7 @@ import {
   STREAM_URLS,
 } from '#/constants'
 import type { StreamType, StreamURL } from '#/constants'
-import { createSocket } from '#/lib/utilFunctions'
+import { createSocket } from '#/modules/VideoStream/lib/utilFunctions'
 import type { StreamConnectionControl, StreamHealth } from '#/types'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import {
@@ -47,8 +47,8 @@ export const useWebsocket = () => {
   useEffect(() => {
     isDisposedRef.current = false
 
-    const connectStream = (streamUrl: StreamURL) => {
-      const { socket, streamName } = createSocket(streamUrl)
+    const connectStream = async (streamUrl: StreamURL) => {
+      const { socket, streamName } = await createSocket(streamUrl)
       const streamControl = connectionControlsRef.current[streamName]
       const attemptNumber = streamControl.reconnectAttempt + 1
       const isCurrentSocket = () => streamControl.ws === socket

@@ -1,4 +1,4 @@
-import type { Detection } from '#/lib/drawDetections'
+import type { Detection } from '#/modules/VideoStream/lib/drawDetections'
 import type { RtcDataMessage, TrackMapEntry } from '#/types'
 import { decodeRtcMessage, isFiniteNumber, parseDetection } from './utils'
 

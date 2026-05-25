@@ -105,6 +105,10 @@ export const usePc = (ws?: WebSocket): UsePcResult => {
           return
         }
 
+        /**
+         * Detection messages are expected to arrive at a high frequency and can be bursty,
+         * so we handle them with care to ensure smooth video playback and responsive overlay updates without overwhelming the browser's rendering capabilities
+         */
         const previousDetectionFrame =
           latestDetectionByCameraRef.current[message.cameraId]
         const hasDetections = message.detections.length > 0
@@ -118,6 +122,13 @@ export const usePc = (ws?: WebSocket): UsePcResult => {
           clearOverlay(message.cameraId)
         }
 
+        /**
+         * To prevent stale detections from lingering indefinitely on the overlay in case we stop receiving updates
+         * (e.g. due to a network issue or the detection service crashing), we set a timer to clear the detections after a certain timeout period without receiving new detection messages.
+         * However, we only want to set this timer when we actually have detections to display, to give a grace period for temporary issues without immediately clearing the overlay.
+         * If we receive a detection message with no detections, but the previous message also had no detections, we can safely clear the overlay immediately without setting a timer,
+         * since there's nothing to lose in terms of displayed information.
+         */
         if (hasDetections) {
           const existingTimer =
             detectionClearTimersRef.current[message.cameraId]
@@ -150,6 +161,12 @@ export const usePc = (ws?: WebSocket): UsePcResult => {
     pcRef.current = pc
   }
 
+  /**
+   * Cleanup logic when the component using this hook unmounts: we need to stop all media tracks,
+   * close the peer connection and data channel, remove event listeners, cancel animation frames, clear timers,
+   * disconnect resize observers, and clean up any references to DOM elements to prevent memory
+   * leaks and ensure that everything is properly cleaned up when the component is no longer in use.
+   */
   useEffect(() => {
     return () => {
       Object.keys(animationFramesRef.current).forEach(cancelOverlayDraw)

@@ -1,8 +1,5 @@
+import type { LatencyBadgeProps } from '#/types'
 import { memo } from 'react'
-
-type LatencyBadgeProps = {
-  latencyMs?: number
-}
 
 export const LatencyBadge = memo(({ latencyMs }: LatencyBadgeProps) => (
   <span style={{ fontVariantNumeric: 'tabular-nums' }}>
