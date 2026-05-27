@@ -4,6 +4,7 @@ import { jwt } from 'better-auth/plugins'
 import { JWT_AUDIENCE, JWT_ISSUER } from '#/constants'
 
 export const auth = betterAuth({
+  baseURL: process.env.BETTER_AUTH_URL || 'http://localhost:3000',
   emailAndPassword: {
     enabled: true,
   },
