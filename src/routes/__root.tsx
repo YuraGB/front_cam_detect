@@ -18,6 +18,7 @@ import { getLocale } from '#/paraglide/runtime'
 import appCss from '../styles.css?url'
 
 import type { QueryClient } from '@tanstack/react-query'
+import { RootErrorBoundary } from '../components/ErrorBoundary'
 
 interface MyRouterContext {
   queryClient: QueryClient
@@ -54,6 +55,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
       },
     ],
   }),
+  errorComponent: ({ error }) => <RootErrorBoundary error={error} />,
   shellComponent: RootDocument,
 })
 
