@@ -48,7 +48,19 @@ export const useWebsocket = () => {
     isDisposedRef.current = false
 
     const connectStream = async (streamUrl: StreamURL) => {
-      const { socket, streamName } = await createSocket(streamUrl)
+      let socket: WebSocket
+      let streamName: StreamType
+
+      try {
+        ;({ socket, streamName } = await createSocket(streamUrl))
+      } catch (error) {
+        logger.error('[WS] create failed', { streamUrl, error })
+        window.setTimeout(() => {
+          void connectStream(streamUrl)
+        }, RECONNECT_BASE_DELAY_MS)
+        return
+      }
+
       const streamControl = connectionControlsRef.current[streamName]
       const attemptNumber = streamControl.reconnectAttempt + 1
       const isCurrentSocket = () => streamControl.ws === socket
@@ -214,12 +226,14 @@ export const useWebsocket = () => {
         })
         streamControl.reconnectTimer = window.setTimeout(() => {
           streamControl.reconnectTimer = null
-          connectStream(streamUrl)
+          void connectStream(streamUrl)
         }, reconnectDelay)
       }
     }
 
-    STREAM_URLS.forEach(connectStream)
+    STREAM_URLS.forEach((url) => {
+      void connectStream(url)
+    })
 
     return () => {
       isDisposedRef.current = true

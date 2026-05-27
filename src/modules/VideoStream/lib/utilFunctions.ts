@@ -248,11 +248,14 @@ const createSocket = async (
   const streamName = getStreamName(streamUrl)
   const token = await authClient.token()
 
-  if (!token || token.data?.token == null) {
+  if (token.data?.token == null) {
     throw new Error('Failed to obtain authentication token')
   }
 
-  const socket = new WebSocket(`${streamUrl}&token=${token.data.token}`)
+ const wsUrl = new URL(streamUrl)
+ wsUrl.searchParams.set('token', token.data.token)
+ const socket = new WebSocket(wsUrl.toString())
+
 
   return {
     socket,
