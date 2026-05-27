@@ -10,11 +10,11 @@ export const Route = createFileRoute('/(auth)')({
 
 function AuthRouteLayout() {
   return (
-  <AuthSidebar>
-    <article className="page-wrap px-4 pb-8 pt-14">
-      <SidebarTrigger className='w-auto p-4 cursor-pointer' />
-      <Outlet />
-    </article>
-  </AuthSidebar>
-)}
-  
+    <AuthSidebar>
+      <article className="page-wrap px-4 pb-8 pt-14">
+        <SidebarTrigger className="w-auto p-4 cursor-pointer" />
+        <Outlet />
+      </article>
+    </AuthSidebar>
+  )
+}
