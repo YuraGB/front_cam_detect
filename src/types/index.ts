@@ -100,6 +100,10 @@ type UsePcResult = {
     element: HTMLCanvasElement | null,
   ) => void
 }
+
+export type UsePcOptions = {
+  onPipelineMetrics?: (message: PipelineMetricsMessage) => void
+}
 type ScheduledOverlayDraw = {
   type: 'video-frame' | 'animation-frame'
   handle: number
@@ -118,6 +122,7 @@ type InferenceMetrics = {
   submittedFrames: number
   droppedPendingFrames: number
   processedFrames: number
+  totalDetections: number
   avgInferenceMs: number
   maxInferenceMs: number
 }
@@ -206,6 +211,7 @@ type CameraStreamViewProps = {
     submittedFrames: number
     droppedPendingFrames: number
     processedFrames: number
+    totalDetections: number
     avgInferenceMs: number
     maxInferenceMs: number
   } | null

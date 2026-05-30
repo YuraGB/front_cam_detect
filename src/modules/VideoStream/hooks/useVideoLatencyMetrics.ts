@@ -41,6 +41,7 @@ export const useVideoLatencyMetrics = () => {
   }, [])
 
   const scheduleFrameCallback = useCallback((cameraId: string) => {
+    console.log('inshedule')
     if (callbackHandlesRef.current[cameraId]) {
       return
     }
@@ -51,8 +52,8 @@ export const useVideoLatencyMetrics = () => {
     }
 
     const onRenderedFrame = (now: DOMHighResTimeStamp) => {
+      console.log('here', pendingSamplesRef, cameraId)
       delete callbackHandlesRef.current[cameraId]
-
       const sample = pendingSamplesRef.current[cameraId]
       if (sample) {
         delete pendingSamplesRef.current[cameraId]

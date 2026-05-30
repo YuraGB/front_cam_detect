@@ -44,6 +44,10 @@ export const PipelineMetricsPanel = memo(
         {inferenceMetrics ? inferenceMetrics.processedFrames : '...'}
       </span>
       <span>
+        detections:{' '}
+        {inferenceMetrics ? inferenceMetrics.totalDetections : '...'}
+      </span>
+      <span>
         yolo skipped:{' '}
         {inferenceMetrics ? inferenceMetrics.droppedPendingFrames : '...'}
       </span>

@@ -105,6 +105,7 @@ export const useHelperFunctions = () => {
 
   const scheduleOverlayDraw = useCallback(
     (cameraId: string) => {
+      console.log('heeeeeeeeeeeeeeeeeeeeeeeeeeeeee', animationFramesRef)
       if (animationFramesRef.current[cameraId] != null) {
         return
       }
@@ -123,6 +124,7 @@ export const useHelperFunctions = () => {
         }
 
         syncOverlaySize(cameraId)
+        console.log(detectionFrame)
         drawDetectionsOverlay(canvas, detectionFrame.detections, {
           sourceWidth: video.videoWidth || video.clientWidth || 1,
           sourceHeight: video.videoHeight || video.clientHeight || 1,

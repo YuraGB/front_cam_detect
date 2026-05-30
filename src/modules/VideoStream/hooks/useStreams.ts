@@ -7,14 +7,16 @@ import { usePipelineMetrics } from './usePipelineMetrics'
 
 export const useStreams = () => {
   const { connectionState, websockets, connectionControlsRef } = useWebsocket()
+  const { pipelineMetrics, recordPipelineMetrics } = usePipelineMetrics()
   const {
     pc,
     cameraIds,
     latencyMetrics,
     registerVideoElement,
     registerOverlayCanvas,
-  } = usePc(websockets.current.webrtc)
-  const { pipelineMetrics } = usePipelineMetrics()
+  } = usePc(websockets.current.webrtc, {
+    onPipelineMetrics: recordPipelineMetrics,
+  })
 
   useEffect(() => {
     const ws = websockets.current.webrtc

@@ -1,4 +1,4 @@
-import type { UsePcResult } from '#/types'
+import type { UsePcOptions, UsePcResult } from '#/types'
 import { parseRtcDataMessage } from '../lib/detections'
 import { useCallback, useEffect, useRef } from 'react'
 import { useHelperFunctions } from './useHelperFunctions'
@@ -9,7 +9,10 @@ import {
 } from '#/constants'
 import { useVideoLatencyMetrics } from './useVideoLatencyMetrics'
 
-export const usePc = (ws?: WebSocket): UsePcResult => {
+export const usePc = (
+  ws?: WebSocket,
+  options: UsePcOptions = {},
+): UsePcResult => {
   const pcRef = useRef<RTCPeerConnection | null>(null)
   const dcRef = useRef<RTCDataChannel | null>(null)
   const wsRef = useRef<WebSocket | undefined>(ws)
@@ -43,6 +46,12 @@ export const usePc = (ws?: WebSocket): UsePcResult => {
   useEffect(() => {
     wsRef.current = ws
   }, [ws])
+
+  const onPipelineMetricsRef = useRef(options.onPipelineMetrics)
+
+  useEffect(() => {
+    onPipelineMetricsRef.current = options.onPipelineMetrics
+  }, [options.onPipelineMetrics])
 
   if (!pcRef.current) {
     const pc = new RTCPeerConnection(RTCPeerConnectionConfig)
@@ -90,9 +99,10 @@ export const usePc = (ws?: WebSocket): UsePcResult => {
         if (!message) {
           return
         }
-        // Pipeline metrics messages are handled in a usePipelineMetrics hook, so we ignore them here
-        // to avoid unnecessary processing and potential interference with the detection overlay logic in this hook
-        if (message.type === 'pipeline_metrics') return
+        if (message.type === 'pipeline_metrics') {
+          onPipelineMetricsRef.current?.(message)
+          return
+        }
 
         if (message.type === 'track_map') {
           applyTrackMap(message.tracks)
@@ -113,7 +123,7 @@ export const usePc = (ws?: WebSocket): UsePcResult => {
           latestDetectionByCameraRef.current[message.cameraId]
         const hasDetections = message.detections.length > 0
         ensureCameraBinding(message.cameraId)
-
+        console.log(message)
         if (hasDetections) {
           latestDetectionByCameraRef.current[message.cameraId] = message
           scheduleOverlayDraw(message.cameraId)
