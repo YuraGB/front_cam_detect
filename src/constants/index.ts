@@ -19,11 +19,7 @@ export type StreamURL = (typeof STREAM_URLS)[number]
 
 export const WEBRTC_TARGET_PEER_ID = 'camera-cv-service'
 
-export type VideoResources = Partial<
-  Record<string, Partial<Record<StreamType, HTMLCanvasElement>>>
->
-
-export { STREAM_TYPES, STREAM_URLS }
+export { STREAM_URLS }
 
 export const RTCPeerConnectionConfig: RTCConfiguration = {
   iceServers: [{ urls: 'stun:stun.l.google.com:19302' }],
@@ -40,19 +36,13 @@ const DETECTION_STALE_TIMEOUT_MS = 1500
 const JWT_ISSUER = env.VITE_JWT_ISSUER || 'better-auth'
 const JWT_AUDIENCE = env.VITE_JWT_AUDIENCE || 'signaling'
 
-const JWT_PRIVATE_KEY = env.VITE_JWT_PRIVATE_KEY
-const JWT_PUBLIC_KEY = env.VITE_JWT_PUBLIC_KEY
-
 export {
   HEARTBEAT_INTERVAL_MS,
   STREAM_INACTIVITY_TIMEOUT_MS,
   RECONNECT_BASE_DELAY_MS,
   RECONNECT_MAX_DELAY_MS,
-  STATS_PUBLISH_INTERVAL_MS,
   OFFER_RETRY_DELAY_MS,
   DETECTION_STALE_TIMEOUT_MS,
   JWT_ISSUER,
   JWT_AUDIENCE,
-  JWT_PRIVATE_KEY,
-  JWT_PUBLIC_KEY,
 }

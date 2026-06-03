@@ -133,47 +133,7 @@ export function Select({
           </ShadcnSelect.SelectGroup>
         </ShadcnSelect.SelectContent>
       </ShadcnSelect.Select>
-    
-      {field.state.meta.isTouched && <ErrorMessages errors={errors} />}
-    </div>
-  )
-}
 
-export function Slider({ label }: { label: string }) {
-  const field = useFieldContext<number>()
-  const errors = useStore(field.store, (state) => state.meta.errors)
-
-  return (
-    <div>
-      <Label htmlFor={label} className="mb-2 text-xl font-bold">
-        {label}
-      </Label>
-      <ShadcnSlider
-        id={label}
-        onBlur={field.handleBlur}
-        value={[field.state.value]}
-        onValueChange={(value) => field.handleChange(value[0])}
-      />
-      {field.state.meta.isTouched && <ErrorMessages errors={errors} />}
-    </div>
-  )
-}
-
-export function Switch({ label }: { label: string }) {
-  const field = useFieldContext<boolean>()
-  const errors = useStore(field.store, (state) => state.meta.errors)
-
-  return (
-    <div>
-      <div className="flex items-center gap-2">
-        <ShadcnSwitch
-          id={label}
-          onBlur={field.handleBlur}
-          checked={field.state.value}
-          onCheckedChange={(checked) => field.handleChange(checked)}
-        />
-        <Label htmlFor={label}>{label}</Label>
-      </div>
       {field.state.meta.isTouched && <ErrorMessages errors={errors} />}
     </div>
   )

@@ -252,10 +252,9 @@ const createSocket = async (
     throw new Error('Failed to obtain authentication token')
   }
 
- const wsUrl = new URL(streamUrl)
- wsUrl.searchParams.set('token', token.data.token)
- const socket = new WebSocket(wsUrl.toString())
-
+  const wsUrl = new URL(streamUrl)
+  wsUrl.searchParams.set('token', token.data.token)
+  const socket = new WebSocket(wsUrl.toString())
 
   return {
     socket,

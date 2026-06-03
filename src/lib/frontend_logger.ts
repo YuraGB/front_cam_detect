@@ -1,5 +1,6 @@
 const isDev = import.meta.env.DEV
 
+// Console methods ex.: console.log; console.warn etc...
 const methods = ['log', 'info', 'warn', 'error', 'debug'] as const
 
 type ConsoleMethod = (typeof methods)[number]
