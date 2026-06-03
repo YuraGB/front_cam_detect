@@ -25,6 +25,7 @@ function RouteComponent() {
       <div className="grid w-full gap-4 rounded-xl border border-[var(--line)] bg-[var(--header-bg)] p-4 ">
         <img
           src={`/image-${id}.jpg`}
+          alt={`Image ${id}`}
           style={{ viewTransitionName: `image-${id}` }}
         />
       </div>

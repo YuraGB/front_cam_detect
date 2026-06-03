@@ -4,17 +4,25 @@ import { getSessionFn } from './getSession'
 import { db } from '#/server/db/drizzle'
 import { eq } from 'drizzle-orm'
 import { user } from '#/server/db/schema/auth'
-import type { Role } from 'node_modules/better-auth/dist/plugins/access/types.d.mts'
+
 import {
   ALL_PERMISSIONS,
   ROLES,
   ROLES_PERMISSIONS,
 } from '#/constants/permissions'
 
-export function hasPermission(u: TDBUser, permission: string) {
-  const permissions = JSON.parse(u.permissionsJson)
+import type { Role } from '#/constants/permissions'
+import { logger } from './frontend_logger'
 
-  return permissions.includes(permission)
+export function hasPermission(u: TDBUser, permission: string) {
+  try {
+    const permissions = JSON.parse(u.permissionsJson)
+
+    return Array.isArray(permissions) && permissions.includes(permission)
+  } catch (error) {
+    logger.error('Failed to parse permissionsJson for user:', u.id)
+    return false
+  }
 }
 
 export async function requirePermissions(permissions: string[]) {

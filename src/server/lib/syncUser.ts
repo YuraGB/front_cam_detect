@@ -13,7 +13,10 @@ export const syncUser = async (
    * we need to have the session in the context.
    * Since this is a better-auth hook, we can access the new session from the context and set it before calling getJwtToken.
    */
-  const session = ctx?.context.newSession
+  if (!ctx) {
+    throw new Error('Context is required for user synchronization')
+  }
+  const session = ctx.context.newSession
   if (!session) {
     throw new Error('No session found in context for user synchronization')
   }

@@ -32,6 +32,7 @@ export const ImagesList = () => {
               >
                 <img
                   src={`/image-${id}.jpg`}
+                  alt={`Image ${id}`}
                   style={{
                     viewTransitionName:
                       activeId === String(id) ? `image-${id}` : 'none',
