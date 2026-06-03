@@ -105,7 +105,6 @@ export const useHelperFunctions = () => {
 
   const scheduleOverlayDraw = useCallback(
     (cameraId: string) => {
-      console.log('heeeeeeeeeeeeeeeeeeeeeeeeeeeeee', animationFramesRef)
       if (animationFramesRef.current[cameraId] != null) {
         return
       }

@@ -123,7 +123,6 @@ export const usePc = (
           latestDetectionByCameraRef.current[message.cameraId]
         const hasDetections = message.detections.length > 0
         ensureCameraBinding(message.cameraId)
-        console.log(message)
         if (hasDetections) {
           latestDetectionByCameraRef.current[message.cameraId] = message
           scheduleOverlayDraw(message.cameraId)
