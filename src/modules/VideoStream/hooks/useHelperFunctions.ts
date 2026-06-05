@@ -123,7 +123,6 @@ export const useHelperFunctions = () => {
         }
 
         syncOverlaySize(cameraId)
-        console.log(detectionFrame)
         drawDetectionsOverlay(canvas, detectionFrame.detections, {
           sourceWidth: video.videoWidth || video.clientWidth || 1,
           sourceHeight: video.videoHeight || video.clientHeight || 1,

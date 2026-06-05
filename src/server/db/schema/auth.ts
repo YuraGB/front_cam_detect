@@ -59,7 +59,7 @@ export const jwks = sqliteTable('jwks', {
 
   expiresAt: integer('expires_at', {
     mode: 'timestamp',
-  }).notNull(),
+  }),
 
   createdAt: integer('created_at', {
     mode: 'timestamp',

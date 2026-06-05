@@ -18,6 +18,10 @@ export type StreamType = (typeof STREAM_TYPES)[number]
 export type StreamURL = (typeof STREAM_URLS)[number]
 
 export const WEBRTC_TARGET_PEER_ID = 'camera-cv-service'
+export const SIGNALING_SERVER_URL =
+  env.VITE_SIGNALING_SERVER_URL || 'http://localhost:3002'
+export const BETTER_AUTH_URL =
+  env.VITE_BETTER_AUTH_URL || 'http://localhost:3000'
 
 export { STREAM_URLS }
 

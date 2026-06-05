@@ -1,13 +1,10 @@
 import { betterAuth } from 'better-auth'
-import type { User } from 'better-auth'
 import { tanstackStartCookies } from 'better-auth/tanstack-start'
 import { drizzleAdapter } from '@better-auth/drizzle-adapter'
-import { getJwtToken, jwt } from 'better-auth/plugins'
+import { jwt } from 'better-auth/plugins'
 import { JWT_AUDIENCE, JWT_ISSUER } from '#/constants'
 import { db } from '#/server/db/drizzle'
 import * as schema from '#/server/db/schema/auth'
-import { eq } from 'drizzle-orm'
-import { env } from '#/env'
 import { syncUser } from '#/server/lib/syncUser'
 
 export const auth = betterAuth({

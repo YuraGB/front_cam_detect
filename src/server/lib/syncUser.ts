@@ -1,8 +1,9 @@
-import type { User, AuthContext, GenericEndpointContext } from 'better-auth'
+import type { User, GenericEndpointContext } from 'better-auth'
 import { getJwtToken } from 'better-auth/plugins'
 import { db } from '../db/drizzle'
 import { eq } from 'drizzle-orm'
-import { env } from '#/env'
+import { logger } from '#/lib/frontend_logger'
+import { BETTER_AUTH_URL, SIGNALING_SERVER_URL } from '#/constants'
 
 export const syncUser = async (
   user: User,
@@ -41,22 +42,31 @@ export const syncUser = async (
     if (dbUser) {
       // We will not await this fetch request because we don't want to block the user creation process.
       // If the request fails, we will log the error but not throw it, as it should not prevent the user from being created.
-      fetch(
-        `${env.VITE_BETTER_AUTH_URL || 'http://localhost:3000'}/api/users/sync`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token || ''}`,
-          },
-          body: JSON.stringify(user),
+
+      fetch(`${SIGNALING_SERVER_URL}/api/users/sync`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token || ''}`,
+          'x-auth-origin': BETTER_AUTH_URL, // as fetch will be withiut origin we will pass an identifire
         },
-      ).catch((error) => {
-        console.error(
-          'Error sending new user data to API route:',
-          (error as Error).message,
-        )
+        body: JSON.stringify({
+          ...dbUser,
+          permissionsJson: JSON.parse(dbUser.permissionsJson),
+        }),
       })
+        .then(async (resp) => {
+          const r = await resp.text()
+
+          logger.info(r)
+        })
+        .catch((error) => {
+          logger.error(
+            'Error sending new user data to API route:',
+            (error as Error).message,
+            JSON.stringify(dbUser),
+          )
+        })
     }
   } catch (error) {
     console.error(

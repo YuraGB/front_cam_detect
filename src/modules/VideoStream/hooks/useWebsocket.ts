@@ -1,34 +1,31 @@
-import {
-  HEARTBEAT_INTERVAL_MS,
-  RECONNECT_BASE_DELAY_MS,
-  RECONNECT_MAX_DELAY_MS,
-  STREAM_INACTIVITY_TIMEOUT_MS,
-  STREAM_URLS,
-} from '#/constants'
-import type { StreamType, StreamURL } from '#/constants'
-import { createSocket } from '#/modules/VideoStream/lib/utilFunctions'
-import type { StreamConnectionControl, StreamHealth } from '#/types'
+import type { StreamType } from '#/constants'
+import { authClient } from '#/lib/auth-client'
+import type { StreamHealth } from '#/types'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import {
-  createStreamControl,
-  emptyConnectionState,
-  getStablePeerId,
-} from '../lib/utils'
-import { logger } from '#/lib/frontend_logger'
+  createWebsocketRuntime,
+  shutdownWebsocketRuntime,
+  startWebsocketRuntime,
+} from '../lib/websocketConnection'
+import type { WebsocketRuntime } from '../lib/websocketConnection'
+import { emptyConnectionState } from '../lib/utils'
 
 export const useWebsocket = () => {
   const [connectionState, setConnectionState] =
     useState<Record<StreamType, StreamHealth>>(emptyConnectionState)
-  const wsRef = useRef<Partial<Record<StreamType, WebSocket>>>({})
-  const isDisposedRef = useRef(false)
-  const connectionControlsRef = useRef<
-    Record<StreamType, StreamConnectionControl>
-  >({
-    liveStream: createStreamControl(),
-    detectionStream: createStreamControl(),
-    fileFrames: createStreamControl(),
-    webrtc: createStreamControl(),
-  })
+  const runtimeRef = useRef<WebsocketRuntime | null>(null)
+
+  if (!runtimeRef.current) {
+    runtimeRef.current = createWebsocketRuntime()
+  }
+  const websocketsRef = useRef(runtimeRef.current.websockets)
+  const connectionControlsRef = useRef(runtimeRef.current.connectionControls)
+
+  const {
+    data: session,
+    error: authError,
+  } = authClient.useSession()
+  const isAuthenticated = Boolean(session) && !authError
 
   const updateConnectionState = useCallback(
     (streamName: StreamType, status: StreamHealth): void => {
@@ -45,213 +42,20 @@ export const useWebsocket = () => {
   )
 
   useEffect(() => {
-    isDisposedRef.current = false
-
-    const connectStream = async (streamUrl: StreamURL) => {
-      let socket: WebSocket
-      let streamName: StreamType
-
-      try {
-        ;({ socket, streamName } = await createSocket(streamUrl))
-      } catch (error) {
-        logger.error('[WS] create failed', { streamUrl, error })
-        window.setTimeout(() => {
-          void connectStream(streamUrl)
-        }, RECONNECT_BASE_DELAY_MS)
-        return
+    const runtime = runtimeRef.current
+    if (!runtime || !isAuthenticated) {
+      if (runtime) {
+        shutdownWebsocketRuntime(runtime, { updateConnectionState })
       }
-
-      const streamControl = connectionControlsRef.current[streamName]
-      const attemptNumber = streamControl.reconnectAttempt + 1
-      const isCurrentSocket = () => streamControl.ws === socket
-
-      streamControl.ws = socket
-      streamControl.isRegistered = false
-      streamControl.connectRequested = false
-      if (!streamControl.peerId) {
-        streamControl.peerId = getStablePeerId(streamName)
-      }
-      wsRef.current[streamName] = socket
-
-      logger.info('[WS] create', {
-        streamName,
-        streamUrl,
-        attemptNumber,
-      })
-
-      updateConnectionState(
-        streamName,
-        streamControl.reconnectAttempt > 0 ? 'reconnecting' : 'connecting',
-      )
-
-      socket.onopen = () => {
-        if (!isCurrentSocket()) {
-          logger.info('[WS] ignoring open from stale socket', {
-            streamName,
-            streamUrl,
-            attemptNumber,
-          })
-          socket.close()
-          return
-        }
-        logger.info('[WS] open', {
-          streamName,
-          streamUrl,
-          attemptNumber,
-        })
-        streamControl.reconnectAttempt = 0
-        streamControl.lastMessageAt = Date.now()
-
-        updateConnectionState(streamName, 'connected')
-
-        if (streamControl.heartbeatTimer !== null) {
-          window.clearInterval(streamControl.heartbeatTimer)
-        }
-
-        streamControl.heartbeatTimer = window.setInterval(() => {
-          if (streamName === 'webrtc') return
-
-          const now = Date.now()
-          if (
-            now - streamControl.lastMessageAt >
-            STREAM_INACTIVITY_TIMEOUT_MS
-          ) {
-            updateConnectionState(streamName, 'stalled')
-            streamControl.ws?.close()
-          }
-        }, HEARTBEAT_INTERVAL_MS)
-
-        const peerId = streamControl.peerId ?? getStablePeerId(streamName)
-        streamControl.peerId = peerId
-
-        socket.send(
-          JSON.stringify({
-            type: 'register',
-            peerId,
-          }),
-        )
-        streamControl.isRegistered = true
-      }
-
-      socket.onerror = () => {
-        if (!isCurrentSocket()) {
-          logger.info('[WS] ignoring error from stale socket', {
-            streamName,
-            streamUrl,
-            attemptNumber,
-            readyState: socket.readyState,
-          })
-          return
-        }
-        logger.warn('[WS] error', {
-          streamName,
-          streamUrl,
-          attemptNumber,
-          readyState: socket.readyState,
-        })
-        updateConnectionState(streamName, 'reconnecting')
-        if (streamControl.heartbeatTimer !== null) {
-          window.clearInterval(streamControl.heartbeatTimer)
-          streamControl.heartbeatTimer = null
-        }
-        if (streamControl.reconnectTimer !== null) {
-          window.clearTimeout(streamControl.reconnectTimer)
-          streamControl.reconnectTimer = null
-        }
-      }
-
-      socket.onclose = (event) => {
-        if (!isCurrentSocket()) {
-          logger.info('[WS] ignoring close from stale socket', {
-            streamName,
-            streamUrl,
-            attemptNumber,
-            code: event.code,
-            reason: event.reason,
-            wasClean: event.wasClean,
-          })
-          return
-        }
-        logger.warn('[WS] close', {
-          streamName,
-          streamUrl,
-          attemptNumber,
-          code: event.code,
-          reason: event.reason,
-          wasClean: event.wasClean,
-          disposed: isDisposedRef.current,
-        })
-        if (streamControl.heartbeatTimer !== null) {
-          window.clearInterval(streamControl.heartbeatTimer)
-          streamControl.heartbeatTimer = null
-        }
-
-        if (isDisposedRef.current) {
-          updateConnectionState(streamName, 'disconnected')
-          return
-        }
-
-        if (event.code === 4001 && event.reason === 'peer replaced') {
-          logger.warn(
-            '[WS] peer replaced on current socket; waiting for active replacement instead of reconnecting',
-            {
-              streamName,
-              streamUrl,
-              attemptNumber,
-            },
-          )
-          updateConnectionState(streamName, 'reconnecting')
-          return
-        }
-
-        updateConnectionState(streamName, 'reconnecting')
-
-        const reconnectDelay =
-          Math.min(
-            RECONNECT_MAX_DELAY_MS,
-            RECONNECT_BASE_DELAY_MS * 2 ** streamControl.reconnectAttempt,
-          ) + Math.floor(Math.random() * 250)
-
-        streamControl.reconnectAttempt += 1
-
-        if (streamControl.reconnectTimer !== null) {
-          window.clearTimeout(streamControl.reconnectTimer)
-        }
-
-        logger.info('[WS] reconnect scheduled', {
-          streamName,
-          streamUrl,
-          nextAttemptNumber: streamControl.reconnectAttempt + 1,
-          reconnectDelay,
-        })
-        streamControl.reconnectTimer = window.setTimeout(() => {
-          streamControl.reconnectTimer = null
-          void connectStream(streamUrl)
-        }, reconnectDelay)
-      }
+      return
     }
 
-    STREAM_URLS.forEach((url) => {
-      void connectStream(url)
-    })
-
-    return () => {
-      isDisposedRef.current = true
-      Object.values(wsRef.current).forEach((ws) => {
-        if (ws.OPEN === ws.readyState) {
-          logger.info('[WS] cleanup close', {
-            url: ws.url,
-            readyState: ws.readyState,
-          })
-          ws.close()
-        }
-      })
-    }
-  }, [updateConnectionState])
+    return startWebsocketRuntime(runtime, { updateConnectionState })
+  }, [isAuthenticated, updateConnectionState])
 
   return {
     connectionState,
-    websockets: wsRef,
+    websockets: websocketsRef,
     connectionControlsRef,
   }
 }

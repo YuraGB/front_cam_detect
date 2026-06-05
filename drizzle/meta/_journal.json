@@ -5,22 +5,8 @@
     {
       "idx": 0,
       "version": "6",
-      "when": 1780326377647,
-      "tag": "0000_worried_mephistopheles",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "6",
-      "when": 1780390597886,
-      "tag": "0001_married_steel_serpent",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "6",
-      "when": 1780394048120,
-      "tag": "0002_stale_steel_serpent",
+      "when": 1780641673659,
+      "tag": "0000_motionless_mandarin",
       "breakpoints": true
     }
   ]

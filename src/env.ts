@@ -17,6 +17,7 @@ export const env = createEnv({
     VITE_JWT_ISSUER: z.string().url().optional(),
     VITE_JWT_AUDIENCE: z.string().optional(),
     VITE_BETTER_AUTH_URL: z.string().url().optional(),
+    VITE_SIGNALING_SERVER_URL: z.string().url().optional(),
   },
 
   /**

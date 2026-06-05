@@ -13,7 +13,7 @@ CREATE TABLE `jwks` (
 	`id` text PRIMARY KEY NOT NULL,
 	`public_key` text NOT NULL,
 	`private_key` text NOT NULL,
-	`expires_at` integer NOT NULL,
+	`expires_at` integer,
 	`created_at` integer NOT NULL
 );
 --> statement-breakpoint
@@ -36,6 +36,8 @@ CREATE TABLE `user` (
 	`email` text NOT NULL,
 	`email_verified` integer NOT NULL,
 	`image` text,
+	`role` text,
+	`permissions_json` text DEFAULT '["stream.read","detection.read","alerts.read"]' NOT NULL,
 	`created_at` integer NOT NULL,
 	`updated_at` integer NOT NULL
 );
