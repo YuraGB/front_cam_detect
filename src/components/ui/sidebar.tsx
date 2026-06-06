@@ -32,6 +32,17 @@ const SIDEBAR_WIDTH = '16rem'
 const SIDEBAR_WIDTH_MOBILE = '18rem'
 const SIDEBAR_WIDTH_ICON = '3rem'
 const SIDEBAR_KEYBOARD_SHORTCUT = 'b'
+const SIDEBAR_SKELETON_WIDTHS = ['56%', '68%', '82%', '74%', '61%', '88%']
+
+const getSidebarSkeletonWidth = (id: string) => {
+  let hash = 0
+
+  for (let index = 0; index < id.length; index += 1) {
+    hash = (hash + id.charCodeAt(index) * (index + 1)) % 997
+  }
+
+  return SIDEBAR_SKELETON_WIDTHS[hash % SIDEBAR_SKELETON_WIDTHS.length]
+}
 
 type SidebarContextProps = {
   state: 'expanded' | 'collapsed'
@@ -46,7 +57,8 @@ type SidebarContextProps = {
 const SidebarContext = React.createContext<SidebarContextProps | null>(null)
 
 function useSidebar() {
-  const context = React.useContext(SidebarContext)
+  const context = React.use(SidebarContext)
+
   if (!context) {
     throw new Error('useSidebar must be used within a SidebarProvider.')
   }
@@ -91,7 +103,9 @@ function SidebarProvider({
 
   // Helper to toggle the sidebar.
   const toggleSidebar = React.useCallback(() => {
-    return isMobile ? setOpenMobile((open) => !open) : setOpen((open) => !open)
+    return isMobile
+      ? setOpenMobile((currentOpen) => !currentOpen)
+      : setOpen((currentOpen) => !currentOpen)
   }, [isMobile, setOpen, setOpenMobile])
 
   // Adds a keyboard shortcut to toggle the sidebar.
@@ -285,6 +299,7 @@ function SidebarRail({ className, ...props }: React.ComponentProps<'button'>) {
 
   return (
     <button
+      type="button"
       data-sidebar="rail"
       data-slot="sidebar-rail"
       aria-label="Toggle Sidebar"
@@ -607,10 +622,8 @@ function SidebarMenuSkeleton({
 }: React.ComponentProps<'div'> & {
   showIcon?: boolean
 }) {
-  // Random width between 50 to 90%.
-  const width = React.useMemo(() => {
-    return `${Math.floor(Math.random() * 40) + 50}%`
-  }, [])
+  const skeletonId = React.useId()
+  const width = getSidebarSkeletonWidth(skeletonId)
 
   return (
     <div

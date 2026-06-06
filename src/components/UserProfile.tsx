@@ -23,6 +23,7 @@ export const UserProfile = ({
         </div>
       </div>
       <button
+        type="button"
         onClick={onSignOut}
         className="w-full max-w-xs m-auto h-9 px-4 text-sm font-medium border border-neutral-300 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
       >

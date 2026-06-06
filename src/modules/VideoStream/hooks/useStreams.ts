@@ -9,7 +9,7 @@ export const useStreams = () => {
   const { connectionState, websockets, connectionControlsRef } = useWebsocket()
   const { pipelineMetrics, recordPipelineMetrics } = usePipelineMetrics()
   const {
-    pc,
+    pcRef: { current: pc },
     cameraIds,
     latencyMetrics,
     registerVideoElement,

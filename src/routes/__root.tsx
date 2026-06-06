@@ -1,3 +1,4 @@
+/* react-doctor-disable react-doctor/only-export-components */
 import {
   HeadContent,
   Outlet,
@@ -6,12 +7,12 @@ import {
 } from '@tanstack/react-router'
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { TanStackDevtools } from '@tanstack/react-devtools'
-import Footer from '../components/Footer'
-import Header from '../components/Header'
+import Footer from '#/components/Footer'
+import { Header } from '#/components/Header'
 
-import TanStackQueryProvider from '../integrations/tanstack-query/root-provider'
+import TanStackQueryProvider from '#/integrations/tanstack-query/root-provider'
 
-import TanStackQueryDevtools from '../integrations/tanstack-query/devtools'
+import TanStackQueryDevtools from '#/integrations/tanstack-query/devtools.tsx'
 
 import { getLocale } from '#/paraglide/runtime'
 
@@ -63,6 +64,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
   return (
     <html lang={getLocale()} suppressHydrationWarning>
       <head>
+        {/* react-doctor-disable-next-line */}
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
         <HeadContent />
       </head>

@@ -13,13 +13,9 @@ import { emptyConnectionState } from '../lib/utils'
 export const useWebsocket = () => {
   const [connectionState, setConnectionState] =
     useState<Record<StreamType, StreamHealth>>(emptyConnectionState)
-  const runtimeRef = useRef<WebsocketRuntime | null>(null)
-
-  if (!runtimeRef.current) {
-    runtimeRef.current = createWebsocketRuntime()
-  }
-  const websocketsRef = useRef(runtimeRef.current.websockets)
-  const connectionControlsRef = useRef(runtimeRef.current.connectionControls)
+  const [runtime] = useState<WebsocketRuntime>(() => createWebsocketRuntime())
+  const websocketsRef = useRef(runtime.websockets)
+  const connectionControlsRef = useRef(runtime.connectionControls)
 
   const {
     data: session,
@@ -42,16 +38,13 @@ export const useWebsocket = () => {
   )
 
   useEffect(() => {
-    const runtime = runtimeRef.current
-    if (!runtime || !isAuthenticated) {
-      if (runtime) {
-        shutdownWebsocketRuntime(runtime, { updateConnectionState })
-      }
+    if (!isAuthenticated) {
+      shutdownWebsocketRuntime(runtime, { updateConnectionState })
       return
     }
 
     return startWebsocketRuntime(runtime, { updateConnectionState })
-  }, [isAuthenticated, updateConnectionState])
+  }, [isAuthenticated, runtime, updateConnectionState])
 
   return {
     connectionState,

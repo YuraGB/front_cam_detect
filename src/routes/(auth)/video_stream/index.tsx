@@ -4,6 +4,14 @@ import { VideoStream } from '#/modules/VideoStream'
 import { createFileRoute } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/(auth)/video_stream/')({
+  ssr: false,
+  beforeLoad: () =>
+    requirePermissions([
+      PERMISSIONS.ALERTS_READ,
+      PERMISSIONS.STREAM_READ,
+      PERMISSIONS.DETECTION_READ,
+    ]),
+
   component: RouteComponent,
   errorComponent: ({ error }) => {
     console.log(error.message)
@@ -13,13 +21,6 @@ export const Route = createFileRoute('/(auth)/video_stream/')({
 
     return <div>Something went wrong</div>
   },
-  beforeLoad: () =>
-    requirePermissions([
-      PERMISSIONS.ALERTS_READ,
-      PERMISSIONS.STREAM_READ,
-      PERMISSIONS.DETECTION_READ,
-    ]),
-  ssr: false,
 })
 
 function RouteComponent() {

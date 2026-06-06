@@ -53,123 +53,125 @@ export const usePc = (
     onPipelineMetricsRef.current = options.onPipelineMetrics
   }, [options.onPipelineMetrics])
 
-  if (!pcRef.current) {
-    const pc = new RTCPeerConnection(RTCPeerConnectionConfig)
+  useEffect(() => {
+    if (!pcRef.current) {
+      const pc = new RTCPeerConnection(RTCPeerConnectionConfig)
 
-    pc.ontrack = (event) => {
-      const mid = event.transceiver.mid
-      if (!mid) {
-        return
+      // Subscribe on message from WebRTC
+      pc.ontrack = (event) => {
+        const mid = event.transceiver.mid
+        if (!mid) {
+          return
+        }
+
+        const cameraId = trackMidToCameraRef.current[mid]
+        if (!cameraId) {
+          pendingTracksByMidRef.current[mid] = event.track
+          return
+        }
+
+        attachTrackToCamera(cameraId, event.track)
       }
 
-      const cameraId = trackMidToCameraRef.current[mid]
-      if (!cameraId) {
-        pendingTracksByMidRef.current[mid] = event.track
-        return
+      // Subscribe on connection candidate
+      pc.onicecandidate = (event) => {
+        const activeSocket = wsRef.current
+        if (
+          !activeSocket ||
+          activeSocket.readyState !== WebSocket.OPEN ||
+          !event.candidate
+        )
+          return
+
+        activeSocket.send(
+          JSON.stringify({
+            type: 'ice-candidate',
+            candidate: event.candidate.candidate,
+            mid: event.candidate.sdpMid,
+            targetPeerId: WEBRTC_TARGET_PEER_ID,
+          }),
+        )
       }
 
-      attachTrackToCamera(cameraId, event.track)
-    }
+      // Subscribe to receive data
+      pc.ondatachannel = (event) => {
+        const channel = event.channel
+        dcRef.current = channel
 
-    pc.onicecandidate = (event) => {
-      const activeSocket = wsRef.current
-      if (
-        !activeSocket ||
-        activeSocket.readyState !== WebSocket.OPEN ||
-        !event.candidate
-      )
-        return
+        channel.onmessage = async (messageEvent) => {
+          const message = await parseRtcDataMessage(messageEvent.data)
+          if (!message) {
+            return
+          }
+          if (message.type === 'pipeline_metrics') {
+            onPipelineMetricsRef.current?.(message)
+            return
+          }
 
-      activeSocket.send(
-        JSON.stringify({
-          type: 'ice-candidate',
-          candidate: event.candidate.candidate,
-          mid: event.candidate.sdpMid,
-          targetPeerId: WEBRTC_TARGET_PEER_ID,
-        }),
-      )
-    }
+          if (message.type === 'track_map') {
+            applyTrackMap(message.tracks)
+            return
+          }
 
-    pc.ondatachannel = (event) => {
-      const channel = event.channel
-      dcRef.current = channel
+          if (message.type === 'video_latency_sample') {
+            ensureCameraBinding(message.cameraId)
+            recordVideoLatencySample(message)
+            return
+          }
 
-      channel.onmessage = async (messageEvent) => {
-        const message = await parseRtcDataMessage(messageEvent.data)
-        if (!message) {
-          return
-        }
-        if (message.type === 'pipeline_metrics') {
-          onPipelineMetricsRef.current?.(message)
-          return
-        }
-
-        if (message.type === 'track_map') {
-          applyTrackMap(message.tracks)
-          return
-        }
-
-        if (message.type === 'video_latency_sample') {
+          /**
+           * Detection messages are expected to arrive at a high frequency and can be bursty,
+           * so we handle them with care to ensure smooth video playback and responsive overlay updates without overwhelming the browser's rendering capabilities
+           */
+          const previousDetectionFrame =
+            latestDetectionByCameraRef.current[message.cameraId]
+          const hasDetections = message.detections.length > 0
           ensureCameraBinding(message.cameraId)
-          recordVideoLatencySample(message)
-          return
-        }
-
-        /**
-         * Detection messages are expected to arrive at a high frequency and can be bursty,
-         * so we handle them with care to ensure smooth video playback and responsive overlay updates without overwhelming the browser's rendering capabilities
-         */
-        const previousDetectionFrame =
-          latestDetectionByCameraRef.current[message.cameraId]
-        const hasDetections = message.detections.length > 0
-        ensureCameraBinding(message.cameraId)
-        if (hasDetections) {
-          latestDetectionByCameraRef.current[message.cameraId] = message
-          scheduleOverlayDraw(message.cameraId)
-        } else if (!previousDetectionFrame?.detections.length) {
-          latestDetectionByCameraRef.current[message.cameraId] = message
-          clearOverlay(message.cameraId)
-        }
-
-        /**
-         * To prevent stale detections from lingering indefinitely on the overlay in case we stop receiving updates
-         * (e.g. due to a network issue or the detection service crashing), we set a timer to clear the detections after a certain timeout period without receiving new detection messages.
-         * However, we only want to set this timer when we actually have detections to display, to give a grace period for temporary issues without immediately clearing the overlay.
-         * If we receive a detection message with no detections, but the previous message also had no detections, we can safely clear the overlay immediately without setting a timer,
-         * since there's nothing to lose in terms of displayed information.
-         */
-        if (hasDetections) {
-          const existingTimer =
-            detectionClearTimersRef.current[message.cameraId]
-          if (existingTimer != null) {
-            window.clearTimeout(existingTimer)
-            detectionClearTimersRef.current[message.cameraId] = null
+          if (hasDetections) {
+            latestDetectionByCameraRef.current[message.cameraId] = message
+            scheduleOverlayDraw(message.cameraId)
+          } else if (!previousDetectionFrame?.detections.length) {
+            latestDetectionByCameraRef.current[message.cameraId] = message
+            clearOverlay(message.cameraId)
           }
 
-          // Set a timer to clear detections if we stop receiving updates, to prevent stale detections from lingering indefinitely
-          // We only set this timer when we receive detections, to give a grace period for temporary issues (e.g. momentary network hiccup) without immediately clearing the overlay
-          detectionClearTimersRef.current[message.cameraId] = window.setTimeout(
-            () => {
-              latestDetectionByCameraRef.current[message.cameraId] = null
+          /**
+           * To prevent stale detections from lingering indefinitely on the overlay in case we stop receiving updates
+           * (e.g. due to a network issue or the detection service crashing), we set a timer to clear the detections after a certain timeout period without receiving new detection messages.
+           * However, we only want to set this timer when we actually have detections to display, to give a grace period for temporary issues without immediately clearing the overlay.
+           * If we receive a detection message with no detections, but the previous message also had no detections, we can safely clear the overlay immediately without setting a timer,
+           * since there's nothing to lose in terms of displayed information.
+           */
+          if (hasDetections) {
+            const existingTimer =
+              detectionClearTimersRef.current[message.cameraId]
+            if (existingTimer != null) {
+              window.clearTimeout(existingTimer)
               detectionClearTimersRef.current[message.cameraId] = null
-              clearOverlay(message.cameraId)
-            },
-            DETECTION_STALE_TIMEOUT_MS,
-          )
-        } else if (!previousDetectionFrame?.detections.length) {
-          const existingTimer =
-            detectionClearTimersRef.current[message.cameraId]
-          if (existingTimer != null) {
-            window.clearTimeout(existingTimer)
-            detectionClearTimersRef.current[message.cameraId] = null
+            }
+
+            // Set a timer to clear detections if we stop receiving updates, to prevent stale detections from lingering indefinitely
+            // We only set this timer when we receive detections, to give a grace period for temporary issues (e.g. momentary network hiccup) without immediately clearing the overlay
+            detectionClearTimersRef.current[message.cameraId] =
+              window.setTimeout(() => {
+                latestDetectionByCameraRef.current[message.cameraId] = null
+                detectionClearTimersRef.current[message.cameraId] = null
+                clearOverlay(message.cameraId)
+              }, DETECTION_STALE_TIMEOUT_MS)
+          } else if (!previousDetectionFrame?.detections.length) {
+            const existingTimer =
+              detectionClearTimersRef.current[message.cameraId]
+            if (existingTimer != null) {
+              window.clearTimeout(existingTimer)
+              detectionClearTimersRef.current[message.cameraId] = null
+            }
           }
         }
       }
+
+      pcRef.current = pc
     }
-
-    pcRef.current = pc
-  }
-
+  }, [])
   /**
    * Cleanup logic when the component using this hook unmounts: we need to stop all media tracks,
    * close the peer connection and data channel, remove event listeners, cancel animation frames, clear timers,
@@ -231,7 +233,7 @@ export const usePc = (
   )
 
   return {
-    pc: pcRef.current,
+    pcRef,
     cameraIds,
     latencyMetrics,
     registerVideoElement: registerLiveVideoElement,

@@ -9,6 +9,23 @@ import {
   drawDetectionsOverlay,
 } from '#/modules/VideoStream/lib/drawDetections'
 
+const setOverlayCssSize = (
+  canvas: HTMLCanvasElement,
+  width: number,
+  height: number,
+) => {
+  const nextWidth = `${width}px`
+  const nextHeight = `${height}px`
+
+  if (canvas.style.width !== nextWidth) {
+    canvas.style.width = nextWidth
+  }
+
+  if (canvas.style.height !== nextHeight) {
+    canvas.style.height = nextHeight
+  }
+}
+
 export const useHelperFunctions = () => {
   const [cameraIds, setCameraIds] = useState<string[]>([])
 
@@ -58,13 +75,7 @@ export const useHelperFunctions = () => {
     const width = Math.max(1, Math.round(video.clientWidth))
     const height = Math.max(1, Math.round(video.clientHeight))
 
-    if (canvas.style.width !== `${width}px`) {
-      canvas.style.width = `${width}px`
-    }
-
-    if (canvas.style.height !== `${height}px`) {
-      canvas.style.height = `${height}px`
-    }
+    setOverlayCssSize(canvas, width, height)
   }, [])
 
   const clearOverlay = useCallback(

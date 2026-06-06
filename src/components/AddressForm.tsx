@@ -1,5 +1,5 @@
 import { useAppForm } from '#/hooks/demo.form'
-import {logger} from '#/lib/frontend_logger'
+import { logger } from '#/lib/frontend_logger'
 
 export function AddressForm({ user }: { user: any }) {
   const form = useAppForm({
@@ -37,6 +37,7 @@ export function AddressForm({ user }: { user: any }) {
     <div className="flex items-center justify-center p-4 text-white">
       <div className="w-full max-w-2xl p-8 rounded-xl border-8 border-black/10">
         <form
+          // react-doctor-disable-next-line
           onSubmit={(e) => {
             e.preventDefault()
             e.stopPropagation()

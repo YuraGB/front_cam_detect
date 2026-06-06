@@ -3,7 +3,7 @@ import { z } from 'zod'
 
 export const env = createEnv({
   server: {
-    SERVER_URL: z.string().url().optional(),
+    SERVER_URL: z.url().optional(),
   },
 
   /**
@@ -14,9 +14,9 @@ export const env = createEnv({
 
   client: {
     VITE_APP_TITLE: z.string().min(1).optional(),
-    VITE_JWT_ISSUER: z.string().url().optional(),
+    VITE_JWT_ISSUER: z.url().optional(),
     VITE_JWT_AUDIENCE: z.string().optional(),
-    VITE_BETTER_AUTH_URL: z.string().url().optional(),
+    VITE_BETTER_AUTH_URL: z.url().optional(),
     VITE_SIGNALING_SERVER_URL: z.string().url().optional(),
   },
 

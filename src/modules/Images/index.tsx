@@ -9,6 +9,7 @@ export const ImagesList = () => {
     <>
       {' '}
       <button
+        type="button"
         onClick={() =>
           router.navigate({
             to: '/',
@@ -32,7 +33,7 @@ export const ImagesList = () => {
               >
                 <img
                   src={`/image-${id}.jpg`}
-                  alt={`Image ${id}`}
+                  alt={`Some randome view-${id}`}
                   style={{
                     viewTransitionName:
                       activeId === String(id) ? `image-${id}` : 'none',

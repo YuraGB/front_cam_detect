@@ -86,7 +86,7 @@ type CameraBinding = {
 }
 
 type UsePcResult = {
-  pc: RTCPeerConnection | null
+  pcRef: { current?: RTCPeerConnection | null }
   cameraIds: string[]
   latencyMetrics: Partial<
     Record<string, { latencyMs: number; updatedAt: number }>

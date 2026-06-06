@@ -2,9 +2,9 @@ import { useRouter } from '@tanstack/react-router'
 
 export function RootErrorBoundary({ error }: { error: Error }) {
   const router = useRouter()
-  
+
   let errorMessage = 'An unexpected error occurred'
-  let statusCode = 500
+  const statusCode = 500
 
   if (error instanceof Error) {
     errorMessage = error.message
@@ -20,6 +20,7 @@ export function RootErrorBoundary({ error }: { error: Error }) {
           {errorMessage}
         </p>
         <button
+          type="button"
           onClick={() => {
             router.invalidate()
           }}

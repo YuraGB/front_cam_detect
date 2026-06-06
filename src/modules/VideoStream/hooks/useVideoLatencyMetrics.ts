@@ -18,47 +18,27 @@ export const useVideoLatencyMetrics = () => {
     Partial<Record<string, ScheduledFrameCallback>>
   >({})
 
-  const cancelFrameCallback = useCallback((cameraId: string) => {
-    const scheduled = callbackHandlesRef.current[cameraId]
-    if (!scheduled) {
-      return
-    }
-
-    const video = videosRef.current[cameraId]
-    const cancelVideoFrameCallback = video
-      ? Reflect.get(video, 'cancelVideoFrameCallback')
-      : undefined
-    if (
-      scheduled.type === 'video-frame' &&
-      typeof cancelVideoFrameCallback === 'function'
-    ) {
-      cancelVideoFrameCallback.call(video, scheduled.handle)
-    } else {
-      window.cancelAnimationFrame(scheduled.handle)
-    }
-
-    delete callbackHandlesRef.current[cameraId]
-  }, [])
-
-  const scheduleFrameCallback = useCallback((cameraId: string) => {
-    console.log('inshedule')
+  function scheduleFrameCallback(cameraId: string) {
     if (callbackHandlesRef.current[cameraId]) {
       return
     }
 
     const video = videosRef.current[cameraId]
+
     if (!video) {
       return
     }
 
     const onRenderedFrame = (now: DOMHighResTimeStamp) => {
-      console.log('here', pendingSamplesRef, cameraId)
       delete callbackHandlesRef.current[cameraId]
+
       const sample = pendingSamplesRef.current[cameraId]
+
       if (sample) {
         delete pendingSamplesRef.current[cameraId]
 
         const displayTimestampMs = toDisplayEpochMs(now)
+
         setLatencyMetrics((prev) => ({
           ...prev,
           [cameraId]: {
@@ -84,11 +64,13 @@ export const useVideoLatencyMetrics = () => {
       video,
       'requestVideoFrameCallback',
     )
+
     if (typeof requestVideoFrameCallback === 'function') {
       callbackHandlesRef.current[cameraId] = {
         type: 'video-frame',
         handle: requestVideoFrameCallback.call(video, onRenderedFrame),
       }
+
       return
     }
 
@@ -96,6 +78,28 @@ export const useVideoLatencyMetrics = () => {
       type: 'animation-frame',
       handle: window.requestAnimationFrame(onRenderedFrame),
     }
+  }
+
+  const cancelFrameCallback = useCallback((cameraId: string) => {
+    const scheduled = callbackHandlesRef.current[cameraId]
+    if (!scheduled) {
+      return
+    }
+
+    const video = videosRef.current[cameraId]
+    const cancelVideoFrameCallback = video
+      ? Reflect.get(video, 'cancelVideoFrameCallback')
+      : undefined
+    if (
+      scheduled.type === 'video-frame' &&
+      typeof cancelVideoFrameCallback === 'function'
+    ) {
+      cancelVideoFrameCallback.call(video, scheduled.handle)
+    } else {
+      window.cancelAnimationFrame(scheduled.handle)
+    }
+
+    delete callbackHandlesRef.current[cameraId]
   }, [])
 
   const registerLatencyVideoElement = useCallback(
@@ -113,7 +117,7 @@ export const useVideoLatencyMetrics = () => {
         scheduleFrameCallback(cameraId)
       }
     },
-    [cancelFrameCallback, scheduleFrameCallback],
+    [cancelFrameCallback],
   )
 
   const recordVideoLatencySample = useCallback(
@@ -121,14 +125,14 @@ export const useVideoLatencyMetrics = () => {
       pendingSamplesRef.current[sample.cameraId] = sample
       scheduleFrameCallback(sample.cameraId)
     },
-    [scheduleFrameCallback],
+    [],
   )
 
   useEffect(() => {
     return () => {
       Object.keys(callbackHandlesRef.current).forEach(cancelFrameCallback)
     }
-  }, [cancelFrameCallback])
+  }, [])
 
   return {
     latencyMetrics,

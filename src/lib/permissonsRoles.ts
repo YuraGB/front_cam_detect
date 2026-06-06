@@ -39,24 +39,26 @@ export async function requirePermissions(permissions: string[]) {
   return currentUser
 }
 
-export const getCurrentUser = createServerFn().handler(async () => {
-  const session = await getSessionFn()
-  const sessionUser = session.data?.user
+export const getCurrentUser = createServerFn()
+  .inputValidator(null)
+  .handler(async () => {
+    const session = await getSessionFn()
+    const sessionUser = session.data?.user
 
-  if (!sessionUser) {
-    throw new Error('Unauthorized')
-  }
+    if (!sessionUser) {
+      throw new Error('Unauthorized')
+    }
 
-  const dbUser = await db.query.user.findFirst({
-    where: eq(user.id, sessionUser.id),
+    const dbUser = await db.query.user.findFirst({
+      where: eq(user.id, sessionUser.id),
+    })
+
+    if (!dbUser) {
+      throw new Error('User missing')
+    }
+
+    return dbUser
   })
-
-  if (!dbUser) {
-    throw new Error('User missing')
-  }
-
-  return dbUser
-})
 
 export function getPermissionsForRole(role: Role) {
   return ROLES_PERMISSIONS[role as unknown as keyof typeof ROLES_PERMISSIONS]

@@ -23,19 +23,23 @@ export default function ParaglideLocaleSwitcher() {
       <div style={{ display: 'flex', gap: '0.25rem' }}>
         {locales.map((locale) => (
           <button
+            type="button"
             key={locale}
             onClick={() => setLocale(locale)}
             aria-pressed={locale === currentLocale}
-            style={{
-              cursor: 'pointer',
-              padding: '0.35rem 0.75rem',
-              borderRadius: '999px',
-              border: '1px solid #d1d5db',
-              background: locale === currentLocale ? '#0f172a' : 'transparent',
-              color: locale === currentLocale ? '#f8fafc' : 'inherit',
-              fontWeight: locale === currentLocale ? 700 : 500,
-              letterSpacing: '0.01em',
-            }}
+            className={`
+              cursor-pointer
+              px-3 py-[0.35rem]
+              rounded-full
+              border border-[#d1d5db]
+              tracking-[0.01em]
+              transition-colors
+              ${
+                locale === currentLocale
+                  ? 'bg-slate-900 text-slate-50 font-bold'
+                  : 'bg-transparent text-inherit font-medium'
+              }
+            `}
           >
             {locale.toUpperCase()}
           </button>

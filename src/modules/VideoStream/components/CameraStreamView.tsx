@@ -59,7 +59,6 @@ export const CameraStreamView = memo(
           />
           <canvas
             ref={canvasRef}
-            aria-hidden="true"
             style={{
               position: 'absolute',
               inset: 0,

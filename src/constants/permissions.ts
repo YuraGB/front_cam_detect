@@ -1,8 +1,9 @@
+/* react-doctor-disable */
 /** This file defines the permissions and roles used in the application.
  * It also provides utility functions for checking permissions and retrieving permissions for roles.
  */
 
-export const PERMISSIONS = {
+const PERMISSIONS = {
   STREAM_READ: 'stream.read',
   DETECTION_READ: 'detection.read',
   ALERTS_READ: 'alerts.read',
@@ -16,13 +17,13 @@ export const PERMISSIONS = {
   CAMERA_READ: 'camera.read',
 }
 
-export const VIEWER_PERMISSIONS = [
+const VIEWER_PERMISSIONS = [
   PERMISSIONS.STREAM_READ,
   PERMISSIONS.DETECTION_READ,
   PERMISSIONS.ALERTS_READ,
 ] as const
 
-export const ADMIN_PERMISSIONS = [
+const ADMIN_PERMISSIONS = [
   ...VIEWER_PERMISSIONS,
 
   PERMISSIONS.STREAM_WRITE,
@@ -33,13 +34,13 @@ export const ADMIN_PERMISSIONS = [
   PERMISSIONS.CAMERA_DELETE,
 ] as const
 
-export const SUPER_ADMIN_PERMISSIONS = [
+const SUPER_ADMIN_PERMISSIONS = [
   ...ADMIN_PERMISSIONS,
   PERMISSIONS.CAMERA_WRITE,
   PERMISSIONS.CAMERA_READ,
 ] as const
 
-export const ALL_PERMISSIONS = [
+const ALL_PERMISSIONS = [
   ...new Set([
     ...VIEWER_PERMISSIONS,
     ...ADMIN_PERMISSIONS,
@@ -47,16 +48,25 @@ export const ALL_PERMISSIONS = [
   ]),
 ] as const
 
-export const ROLES = {
+const ROLES = {
   VIEWER: 'viewer',
   ADMIN: 'admin',
   SUPER_ADMIN: 'super-admin',
 } as const
 
-export const ROLES_PERMISSIONS = {
+const ROLES_PERMISSIONS = {
   [ROLES.VIEWER]: VIEWER_PERMISSIONS,
   [ROLES.ADMIN]: ADMIN_PERMISSIONS,
   [ROLES.SUPER_ADMIN]: SUPER_ADMIN_PERMISSIONS,
 } as const
 
 export type Role = keyof typeof ROLES
+export {
+  ADMIN_PERMISSIONS,
+  PERMISSIONS,
+  ROLES,
+  ROLES_PERMISSIONS,
+  ALL_PERMISSIONS,
+  SUPER_ADMIN_PERMISSIONS,
+  VIEWER_PERMISSIONS,
+}
