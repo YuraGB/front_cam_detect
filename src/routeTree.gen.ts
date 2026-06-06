@@ -9,10 +9,8 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as AboutRouteImport } from './routes/about'
 import { Route as authRouteRouteImport } from './routes/(auth)/route'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as DemoI18nRouteImport } from './routes/demo.i18n'
 import { Route as authVideo_streamIndexRouteImport } from './routes/(auth)/video_stream/index'
 import { Route as authTestIndexRouteImport } from './routes/(auth)/test/index'
 import { Route as authProfileIndexRouteImport } from './routes/(auth)/profile/index'
@@ -21,11 +19,6 @@ import { Route as authAddressIndexRouteImport } from './routes/(auth)/address/in
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as authTestIdRouteImport } from './routes/(auth)/test/$id'
 
-const AboutRoute = AboutRouteImport.update({
-  id: '/about',
-  path: '/about',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const authRouteRoute = authRouteRouteImport.update({
   id: '/(auth)',
   getParentRoute: () => rootRouteImport,
@@ -33,11 +26,6 @@ const authRouteRoute = authRouteRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DemoI18nRoute = DemoI18nRouteImport.update({
-  id: '/demo/i18n',
-  path: '/demo/i18n',
   getParentRoute: () => rootRouteImport,
 } as any)
 const authVideo_streamIndexRoute = authVideo_streamIndexRouteImport.update({
@@ -78,8 +66,6 @@ const authTestIdRoute = authTestIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/about': typeof AboutRoute
-  '/demo/i18n': typeof DemoI18nRoute
   '/test/$id': typeof authTestIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/address/': typeof authAddressIndexRoute
@@ -90,8 +76,6 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/about': typeof AboutRoute
-  '/demo/i18n': typeof DemoI18nRoute
   '/test/$id': typeof authTestIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/address': typeof authAddressIndexRoute
@@ -104,8 +88,6 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/(auth)': typeof authRouteRouteWithChildren
-  '/about': typeof AboutRoute
-  '/demo/i18n': typeof DemoI18nRoute
   '/(auth)/test/$id': typeof authTestIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/(auth)/address/': typeof authAddressIndexRoute
@@ -118,8 +100,6 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/about'
-    | '/demo/i18n'
     | '/test/$id'
     | '/api/auth/$'
     | '/address/'
@@ -130,8 +110,6 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/about'
-    | '/demo/i18n'
     | '/test/$id'
     | '/api/auth/$'
     | '/address'
@@ -143,8 +121,6 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/(auth)'
-    | '/about'
-    | '/demo/i18n'
     | '/(auth)/test/$id'
     | '/api/auth/$'
     | '/(auth)/address/'
@@ -157,20 +133,11 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   authRouteRoute: typeof authRouteRouteWithChildren
-  AboutRoute: typeof AboutRoute
-  DemoI18nRoute: typeof DemoI18nRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/about': {
-      id: '/about'
-      path: '/about'
-      fullPath: '/about'
-      preLoaderRoute: typeof AboutRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/(auth)': {
       id: '/(auth)'
       path: ''
@@ -183,13 +150,6 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/demo/i18n': {
-      id: '/demo/i18n'
-      path: '/demo/i18n'
-      fullPath: '/demo/i18n'
-      preLoaderRoute: typeof DemoI18nRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/(auth)/video_stream/': {
@@ -269,8 +229,6 @@ const authRouteRouteWithChildren = authRouteRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   authRouteRoute: authRouteRouteWithChildren,
-  AboutRoute: AboutRoute,
-  DemoI18nRoute: DemoI18nRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
 }
 export const routeTree = rootRouteImport
