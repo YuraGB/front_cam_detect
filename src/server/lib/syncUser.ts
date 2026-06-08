@@ -5,6 +5,14 @@ import { eq } from 'drizzle-orm'
 import { logger } from '#/lib/frontend_logger'
 import { BETTER_AUTH_URL, SIGNALING_SERVER_URL } from '#/constants'
 
+/**
+ * The syncUser is the function that send created / updated User
+ * to the signaling  server for update cache (Redis) and create / update Shadow User
+ * Shadow User is entity that uses for Authenticate and for journaling visitors to the server
+ *
+ * @param {User} user
+ * @param {GenericEndpointContext | null} ctx
+ */
 export const syncUser = async (
   user: User,
   ctx?: GenericEndpointContext | null,
