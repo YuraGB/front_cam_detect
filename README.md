@@ -198,5 +198,5 @@ Routes live in [src/routes](/D:/Projects/cam_frontend/cam_frontend/src/routes).
 
 ## Related Services
 
-- C++ camera service: `E:\Progects\test\camera_cv_service`
-- Signaling server: `D:\Projects\cam_serv`
+- [C++ camera service](https://github.com/YuraGB/server_for_cam_det)
+- [Signaling server](https://github.com/YuraGB/server_for_cam_det)
