@@ -1,3 +1,5 @@
+![demo](assets/schema.png)
+
 # cam_frontend
 
 Browser frontend for the camera WebRTC stack.
