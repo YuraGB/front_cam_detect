@@ -1,4 +1,4 @@
-import BetterAuthHeader from '../../integrations/better-auth/header-user'
+import BetterAuthHeader from '../../modules/Auth/header-user'
 import ParaglideLocaleSwitcher from '../LocaleSwitcher'
 import ThemeToggle from '../ThemeToggle'
 

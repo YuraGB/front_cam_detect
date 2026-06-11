@@ -1,6 +1,6 @@
 import { BETTER_AUTH_URL, SIGNALING_SERVER_URL } from '#/constants'
 import { tryCatch } from '#/lib/asyncActionHandler'
-import type { TDBUser } from '../db/types'
+import type { TDBUser } from '../../db/types'
 
 async function apiSyncUser(token: string, dbUser: TDBUser) {
   return await tryCatch(async () => {

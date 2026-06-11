@@ -1,5 +1,5 @@
 import type { StreamType, StreamURL } from '#/constants'
-import { authClient } from '#/lib/auth-client'
+import { authClient } from '#/modules/Auth/betterAuthClient/auth-client'
 import type { Detection } from '#/modules/VideoStream/lib/drawDetections'
 import { getStreamName } from '#/modules/VideoStream/lib/getStreamName'
 

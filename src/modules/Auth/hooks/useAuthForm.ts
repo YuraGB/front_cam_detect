@@ -1,4 +1,4 @@
-import { authClient } from '#/lib/auth-client'
+import { authClient } from '#/modules/Auth/betterAuthClient/auth-client'
 import { useRouter } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
 import { useAuthFunctions } from './useAuthFunctions'

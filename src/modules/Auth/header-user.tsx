@@ -1,5 +1,5 @@
 import { Button } from '#/components/ui/button'
-import { authClient } from '#/lib/auth-client'
+import { authClient } from '#/modules/Auth/betterAuthClient/auth-client'
 import { Link } from '@tanstack/react-router'
 
 export default function BetterAuthHeader() {

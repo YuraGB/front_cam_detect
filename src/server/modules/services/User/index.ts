@@ -1,4 +1,4 @@
-import { db } from '#/server/db/drizzle'
+import { db } from '#/server/modules/db/drizzle'
 import { eq } from 'drizzle-orm'
 
 export const getUserById = async (id: string) => {

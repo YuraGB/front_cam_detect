@@ -1,9 +1,9 @@
 import { createServerFn } from '@tanstack/react-start'
-import type { TDBUser } from '../server/db/types'
+import type { TDBUser } from '../server/modules/db/types'
 import { getSessionFn } from './getSession'
-import { db } from '#/server/db/drizzle'
+import { db } from '#/server/modules/db/drizzle'
 import { eq } from 'drizzle-orm'
-import { user } from '#/server/db/schema/auth'
+import { user } from '#/server/modules/db/schema/auth'
 
 import {
   ALL_PERMISSIONS,

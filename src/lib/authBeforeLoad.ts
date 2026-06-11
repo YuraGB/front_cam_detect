@@ -22,7 +22,7 @@ export const authBeforeLoader = async ({
     queryClient: QueryClient
   }
 }) => {
-  // Cache session data
+  // Cached session data in react-query
   const session = await context.queryClient.ensureQueryData(
     sessionQueryDataConfiq,
   )

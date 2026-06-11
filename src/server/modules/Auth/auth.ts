@@ -3,9 +3,9 @@ import { tanstackStartCookies } from 'better-auth/tanstack-start'
 import { drizzleAdapter } from '@better-auth/drizzle-adapter'
 import { jwt } from 'better-auth/plugins'
 import { JWT_AUDIENCE, JWT_ISSUER } from '#/constants'
-import { db } from '#/server/db/drizzle'
-import * as schema from '#/server/db/schema/auth'
-import { syncUser } from '#/server/lib/syncUser'
+import { db } from '#/server/modules/db/drizzle'
+import * as schema from '#/server/modules/db/schema/auth'
+import { syncUser } from '#/server/modules/Auth/lib/syncUser'
 
 export const auth = betterAuth({
   baseURL: process.env.BETTER_AUTH_URL || 'http://localhost:3000',
@@ -31,10 +31,6 @@ export const auth = betterAuth({
         returned: false,
       },
       updatedAt: {
-        type: 'string',
-        returned: false,
-      },
-      image: {
         type: 'string',
         returned: false,
       },
@@ -90,8 +86,8 @@ export const auth = betterAuth({
     tanstackStartCookies(),
     jwt({
       jwt: {
-        issuer: JWT_ISSUER,
-        audience: JWT_AUDIENCE,
+        issuer: JWT_ISSUER, // Require for the validation in Signaling Server
+        audience: JWT_AUDIENCE, // Require for the validation in Signaling Server
       },
       jwks: {
         rotationInterval: 60 * 60 * 24 * 30,

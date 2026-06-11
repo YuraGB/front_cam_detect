@@ -1,5 +1,5 @@
 import type { StreamType } from '#/constants'
-import { authClient } from '#/lib/auth-client'
+import { authClient } from '#/modules/Auth/betterAuthClient/auth-client'
 import type { StreamHealth } from '#/types'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import {
@@ -17,10 +17,7 @@ export const useWebsocket = () => {
   const websocketsRef = useRef(runtime.websockets)
   const connectionControlsRef = useRef(runtime.connectionControls)
 
-  const {
-    data: session,
-    error: authError,
-  } = authClient.useSession()
+  const { data: session, error: authError } = authClient.useSession()
   const isAuthenticated = Boolean(session) && !authError
 
   const updateConnectionState = useCallback(

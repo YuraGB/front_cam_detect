@@ -1,6 +1,6 @@
 import type { User, GenericEndpointContext } from 'better-auth'
 import { getJwtToken } from 'better-auth/plugins'
-import { db } from '../db/drizzle'
+import { db } from '../../db/drizzle'
 import { eq } from 'drizzle-orm'
 import { logger } from '#/lib/frontend_logger'
 import { tryCatch } from '#/lib/asyncActionHandler'
