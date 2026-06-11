@@ -5,8 +5,8 @@ import { authBeforeLoader } from '#/lib/authBeforeLoad'
 export const Route = createFileRoute('/')({
   component: App,
   ssr: true,
-  beforeLoad: async () =>
-    await authBeforeLoader({ redirectToIfAuth: { to: '/profile' } }),
+  beforeLoad: async ({ context }) =>
+    await authBeforeLoader({ redirectToIfAuth: { to: '/profile' }, context }),
 })
 
 function App() {

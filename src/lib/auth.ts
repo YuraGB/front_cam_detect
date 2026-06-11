@@ -20,6 +20,62 @@ export const auth = betterAuth({
     recoveryTokenExpiration: 60 * 60 * 24, // 24 hours
     revokeSessionsOnPasswordReset: true,
   },
+  user: {
+    additionalFields: {
+      token: {
+        type: 'string',
+        returned: false,
+      },
+      createdAt: {
+        type: 'string',
+        returned: false,
+      },
+      updatedAt: {
+        type: 'string',
+        returned: false,
+      },
+      image: {
+        type: 'string',
+        returned: false,
+      },
+      emailVerified: {
+        type: 'string',
+        returned: false,
+      },
+      permissionsJson: {
+        type: 'string[]',
+        returned: false,
+      },
+    },
+  },
+  session: {
+    additionalFields: {
+      token: {
+        type: 'string',
+        returned: false,
+      },
+      permissionsJson: {
+        type: 'string[]',
+        returned: false,
+      },
+      createdAt: {
+        type: 'string',
+        returned: false,
+      },
+      updatedAt: {
+        type: 'string',
+        returned: false,
+      },
+      image: {
+        type: 'string',
+        returned: false,
+      },
+      emailVerified: {
+        type: 'string',
+        returned: false,
+      },
+    },
+  },
 
   // We need to sync the user data with the Signaling server after every update or creation of the user.
   // This is because the Signaling server is independent and needs to have the user data to manage WebRTC connections and permissions.

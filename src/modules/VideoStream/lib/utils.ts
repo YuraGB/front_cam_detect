@@ -117,5 +117,4 @@ export {
   isFiniteNumber,
   parseDetection,
   decodeRtcMessage,
-  textDecoder,
 }
