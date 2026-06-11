@@ -66,10 +66,6 @@ export const auth = betterAuth({
         type: 'string',
         returned: false,
       },
-      image: {
-        type: 'string',
-        returned: false,
-      },
       emailVerified: {
         type: 'string',
         returned: false,

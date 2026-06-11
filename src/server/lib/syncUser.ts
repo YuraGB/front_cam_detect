@@ -3,7 +3,8 @@ import { getJwtToken } from 'better-auth/plugins'
 import { db } from '../db/drizzle'
 import { eq } from 'drizzle-orm'
 import { logger } from '#/lib/frontend_logger'
-import { BETTER_AUTH_URL, SIGNALING_SERVER_URL } from '#/constants'
+import { tryCatch } from '#/lib/asyncActionHandler'
+import { apiSyncUser } from './syncUserHandler'
 
 /**
  * The syncUser is the function that send created / updated User
@@ -36,50 +37,40 @@ export const syncUser = async (
   }
   // --------------------------------------------------
 
-  try {
-    const dbUser = await db.query.user.findFirst({
+  const { data: dbUser, error: errorFindUser } = await tryCatch(() =>
+    db.query.user.findFirst({
       where: (u) => eq(u.id, user.id),
-    })
+    }),
+  )
 
-    /**
-     * If the user exists in the database,
-     * we send a POST request to the API route to sync the user data. For Signaling server.
-     * The Signaling server is independent. It needs to have the user data to manage WebRTC connections and permissions.
-     * We include the JWT token in the Authorization header for authentication.
-     */
-    if (dbUser) {
-      // We will not await this fetch request because we don't want to block the user creation process.
-      // If the request fails, we will log the error but not throw it, as it should not prevent the user from being created.
+  if (errorFindUser) {
+    logger.info('Error find user with user id', user.id)
+    return
+  }
 
-      fetch(`${SIGNALING_SERVER_URL}/api/users/sync`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token || ''}`,
-          'x-auth-origin': BETTER_AUTH_URL, // as fetch will be withiut origin we will pass an identifire
-        },
-        body: JSON.stringify({
-          ...dbUser,
-          permissionsJson: JSON.parse(dbUser.permissionsJson),
-        }),
-      })
-        .then(async (resp) => {
-          const r = await resp.text()
+  if (!dbUser) {
+    logger.error('User was not created')
+    return
+  }
 
-          logger.info(r)
-        })
-        .catch((error) => {
-          logger.error(
-            'Error sending new user data to API route:',
-            (error as Error).message,
-            JSON.stringify(dbUser),
-          )
-        })
-    }
-  } catch (error) {
-    console.error(
-      'Error fetching user after creation:',
-      (error as Error).message,
-    )
+  /**
+   * If the user exists in the database,
+   * we send a POST request to the API route to sync the user data. For Signaling server.
+   * The Signaling server is independent. It needs to have the user data to manage WebRTC connections and permissions.
+   * We include the JWT token in the Authorization header for authentication.
+   */
+  const { data: syncUserStatus, error: errorSyncUser } = await apiSyncUser(
+    token,
+    dbUser,
+  )
+
+  const status = await syncUserStatus?.text()
+
+  if (status === 'ok') logger.info('User was synchronized')
+
+  if (errorSyncUser) {
+    logger.error(`The User with id: ${dbUser.id} was not synchronized`)
+    // In production ".info" will not be displayed
+    logger.info(`Error message: ${errorSyncUser}`)
   }
 }
