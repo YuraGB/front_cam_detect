@@ -1,3 +1,4 @@
+import { getQueryContext } from '#/integrations/tanstack-query/query-client'
 import { authClient } from '#/modules/Auth/betterAuthClient/auth-client'
 import { useRouter } from '@tanstack/react-router'
 
@@ -22,6 +23,8 @@ export const useAuthFunctions = () => {
   const router = useRouter()
   const signOut = () => {
     void authClient.signOut()
+    // remove from the cache/storage
+    getQueryContext().queryClient.removeQueries({ queryKey: ['session'] })
     document.startViewTransition(() => {
       router.navigate({ to: '/' })
     })

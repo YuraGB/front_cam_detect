@@ -1,9 +1,11 @@
 import { Button } from '#/components/ui/button'
 import { authClient } from '#/modules/Auth/betterAuthClient/auth-client'
 import { Link } from '@tanstack/react-router'
+import { useAuthFunctions } from './hooks/useAuthFunctions'
 
 export default function BetterAuthHeader() {
   const { data: session, isPending } = authClient.useSession()
+  const { signOut } = useAuthFunctions()
 
   if (isPending) {
     return (
@@ -23,17 +25,12 @@ export default function BetterAuthHeader() {
             </span>
           </div>
         )}
-        <button
+        <Button
           type="button"
-          onClick={() => {
-            void authClient.signOut()
-          }}
+          onClick={signOut}
           className="flex-1 h-9 px-4 text-sm font-medium bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-50 border border-neutral-300 dark:border-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors"
         >
           Sign out
-        </button>
-        <Button asChild variant="outline" size="sm">
-          <Link to="/video_stream">See video stream</Link>
         </Button>
       </div>
     )

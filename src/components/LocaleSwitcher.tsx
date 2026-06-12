@@ -17,7 +17,7 @@ export default function ParaglideLocaleSwitcher() {
       }}
       aria-label={m.language_label()}
     >
-      <span style={{ opacity: 0.85 }}>
+      <span style={{ opacity: 0.85 }} className="hidden md:inline">
         {m.current_locale({ locale: currentLocale })}
       </span>
       <div style={{ display: 'flex', gap: '0.25rem' }}>
