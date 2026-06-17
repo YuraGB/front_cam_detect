@@ -20,6 +20,7 @@ export const getSessionFn = createServerFn({ method: 'GET' }).handler(
       return json
     }
 
+    // Adding additional field to the session
     if (res.data?.user) {
       try {
         const currentUser = await getUserById(res.data.user.id)

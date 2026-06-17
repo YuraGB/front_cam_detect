@@ -6,6 +6,7 @@ import { JWT_AUDIENCE, JWT_ISSUER } from '#/constants'
 import { db } from '#/server/modules/db/drizzle'
 import * as schema from '#/server/modules/db/schema/auth'
 import { syncUser } from '#/server/modules/Auth/lib/syncUser'
+import { logger } from '#/lib/frontend_logger'
 
 export const auth = betterAuth({
   baseURL: process.env.BETTER_AUTH_URL || 'http://localhost:3000',
@@ -20,6 +21,13 @@ export const auth = betterAuth({
     recoveryTokenExpiration: 60 * 60 * 24, // 24 hours
     revokeSessionsOnPasswordReset: true,
   },
+
+  /**
+   * Exclude almost all fields,
+   * because this user will be using for creating jwt token.
+   * We don't want that token has additinal data like roles or permissons for security perpose.
+   * But we will add additional fields later in getSessionFn
+   */
   user: {
     additionalFields: {
       token: {
@@ -100,7 +108,13 @@ export const auth = betterAuth({
     window: 60,
     max: 100,
   },
-  logging: {
-    level: 'info',
+  logger: {
+    disabled: false,
+    disableColors: false,
+    level: 'warn',
+    log: (level, message, ...args) => {
+      // Custom logging implementation
+      logger.info(`[${level}] ${message}`, ...args)
+    },
   },
 })
