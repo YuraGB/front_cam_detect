@@ -1,6 +1,6 @@
 import { createFileRoute, useRouter } from '@tanstack/react-router'
 
-export const Route = createFileRoute('/(auth)/test/$id')({
+export const Route = createFileRoute('/(protected)/test/$id')({
   component: RouteComponent,
 })
 

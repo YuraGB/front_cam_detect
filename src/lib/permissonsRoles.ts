@@ -83,3 +83,15 @@ export function getPermissionsForRoles(roles: Role[]) {
 
   return Array.from(permissions)
 }
+
+export function canAccess(
+  userPermissions: string[],
+  requiredPermissions?: string[],
+) {
+  const permSet = new Set(userPermissions)
+  if (!requiredPermissions?.length) {
+    return true
+  }
+
+  return requiredPermissions.every((permission) => permSet.has(permission))
+}

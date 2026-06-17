@@ -8,6 +8,7 @@ export const VideoStream = () => {
     pipelineMetrics,
     registerVideoElement,
     registerOverlayCanvas,
+    shouldDrawOverlay,
   } = useStreams()
 
   return (
@@ -23,6 +24,7 @@ export const VideoStream = () => {
             inferenceMetrics={pipelineMetrics.inference}
             registerVideoElement={registerVideoElement}
             registerOverlayCanvas={registerOverlayCanvas}
+            shouldDrawOverlay={shouldDrawOverlay}
           />
         ))}
       </div>

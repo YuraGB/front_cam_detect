@@ -40,6 +40,7 @@ export const usePc = (
     latestDetectionByCameraRef,
     trackMidToCameraRef,
     pendingTracksByMidRef,
+    shouldDrawOverlay,
     cameraIds,
   } = useHelperFunctions()
 
@@ -238,5 +239,6 @@ export const usePc = (
     latencyMetrics,
     registerVideoElement: registerLiveVideoElement,
     registerOverlayCanvas,
+    shouldDrawOverlay,
   }
 }

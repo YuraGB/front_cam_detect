@@ -15,13 +15,12 @@ export const useAuthForm = () => {
   const { emailSignIn, emailSignUp } = useAuthFunctions()
 
   useEffect(() => {
-    if (session?.user) {
-      router.navigate({
-        to: '/profile',
-        viewTransition: true,
-      })
-    }
-  }, [session, router])
+    if (!session?.user) return
+    router.navigate({
+      to: '/profile',
+      replace: true,
+    })
+  }, [session?.user])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -47,11 +46,10 @@ export const useAuthForm = () => {
     } catch (err) {
       setError('An unexpected error occurred')
       setLoading(false)
-    }
-    // finally {
-    //   // There is a blick in the UI when we set loading to false here,
-    //   // so we will rely on the session effect to navigate and hide the form
-    //   setLoading(false)
+    } // finally {
+    // There is a blick in the UI when we set loading to false here,
+    // so we will rely on the session effect to navigate and hide the form
+    // setLoading(false)
     // }
   }
 

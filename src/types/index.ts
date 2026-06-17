@@ -1,4 +1,8 @@
 import type { Detection } from '#/modules/VideoStream/lib/drawDetections'
+import type { icons } from 'lucide-react'
+import type { LinkProps, RegisteredRouter } from '@tanstack/react-router'
+
+export type AllPaths = LinkProps<RegisteredRouter>['to']
 
 type StreamHealth =
   | 'connecting'
@@ -85,6 +89,16 @@ type CameraBinding = {
   layoutHandler: (() => void) | null
 }
 
+type TRegisterOverlayCanvas = (
+  cameraId: string,
+  element: HTMLCanvasElement | null,
+) => void
+
+export type TShouldDrawOverlayFn = (
+  cameraId: string,
+  shoudDraw: boolean,
+) => void
+
 type UsePcResult = {
   pcRef: { current?: RTCPeerConnection | null }
   cameraIds: string[]
@@ -95,10 +109,8 @@ type UsePcResult = {
     cameraId: string,
     element: HTMLVideoElement | null,
   ) => void
-  registerOverlayCanvas: (
-    cameraId: string,
-    element: HTMLCanvasElement | null,
-  ) => void
+  registerOverlayCanvas: TRegisterOverlayCanvas
+  shouldDrawOverlay: TShouldDrawOverlayFn
 }
 
 export type UsePcOptions = {
@@ -219,15 +231,23 @@ type CameraStreamViewProps = {
     cameraId: string,
     element: HTMLVideoElement | null,
   ) => void
-  registerOverlayCanvas: (
-    cameraId: string,
-    element: HTMLCanvasElement | null,
-  ) => void
+  registerOverlayCanvas: TRegisterOverlayCanvas
+  shouldDrawOverlay: TShouldDrawOverlayFn
 }
 
 type LatencyBadgeProps = {
   latencyMs?: number
 }
+
+export type IconName = keyof typeof icons
+export type SideBarMenuItem = {
+  id: string
+  name: string
+  icon: IconName
+  to: AllPaths
+}
+
+export type MenuItem = SideBarMenuItem & { permissions?: string[] }
 
 export type {
   StreamHealth,

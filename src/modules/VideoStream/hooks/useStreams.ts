@@ -14,6 +14,7 @@ export const useStreams = () => {
     latencyMetrics,
     registerVideoElement,
     registerOverlayCanvas,
+    shouldDrawOverlay,
   } = usePc(websockets.current.webrtc, {
     onPipelineMetrics: recordPipelineMetrics,
   })
@@ -132,5 +133,6 @@ export const useStreams = () => {
     pipelineMetrics,
     registerVideoElement,
     registerOverlayCanvas,
+    shouldDrawOverlay,
   }
 }

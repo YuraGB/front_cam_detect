@@ -9,18 +9,18 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as authRouteRouteImport } from './routes/(auth)/route'
+import { Route as protectedRouteRouteImport } from './routes/(protected)/route'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as authVideo_streamIndexRouteImport } from './routes/(auth)/video_stream/index'
-import { Route as authTestIndexRouteImport } from './routes/(auth)/test/index'
-import { Route as authProfileIndexRouteImport } from './routes/(auth)/profile/index'
-import { Route as authDashboardIndexRouteImport } from './routes/(auth)/dashboard/index'
-import { Route as authAddressIndexRouteImport } from './routes/(auth)/address/index'
+import { Route as protectedVideo_streamIndexRouteImport } from './routes/(protected)/video_stream/index'
+import { Route as protectedTestIndexRouteImport } from './routes/(protected)/test/index'
+import { Route as protectedProfileIndexRouteImport } from './routes/(protected)/profile/index'
+import { Route as protectedDashboardIndexRouteImport } from './routes/(protected)/dashboard/index'
+import { Route as protectedAddressIndexRouteImport } from './routes/(protected)/address/index'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
-import { Route as authTestIdRouteImport } from './routes/(auth)/test/$id'
+import { Route as protectedTestIdRouteImport } from './routes/(protected)/test/$id'
 
-const authRouteRoute = authRouteRouteImport.update({
-  id: '/(auth)',
+const protectedRouteRoute = protectedRouteRouteImport.update({
+  id: '/(protected)',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -28,73 +28,74 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const authVideo_streamIndexRoute = authVideo_streamIndexRouteImport.update({
-  id: '/video_stream/',
-  path: '/video_stream/',
-  getParentRoute: () => authRouteRoute,
-} as any)
-const authTestIndexRoute = authTestIndexRouteImport.update({
+const protectedVideo_streamIndexRoute =
+  protectedVideo_streamIndexRouteImport.update({
+    id: '/video_stream/',
+    path: '/video_stream/',
+    getParentRoute: () => protectedRouteRoute,
+  } as any)
+const protectedTestIndexRoute = protectedTestIndexRouteImport.update({
   id: '/test/',
   path: '/test/',
-  getParentRoute: () => authRouteRoute,
+  getParentRoute: () => protectedRouteRoute,
 } as any)
-const authProfileIndexRoute = authProfileIndexRouteImport.update({
+const protectedProfileIndexRoute = protectedProfileIndexRouteImport.update({
   id: '/profile/',
   path: '/profile/',
-  getParentRoute: () => authRouteRoute,
+  getParentRoute: () => protectedRouteRoute,
 } as any)
-const authDashboardIndexRoute = authDashboardIndexRouteImport.update({
+const protectedDashboardIndexRoute = protectedDashboardIndexRouteImport.update({
   id: '/dashboard/',
   path: '/dashboard/',
-  getParentRoute: () => authRouteRoute,
+  getParentRoute: () => protectedRouteRoute,
 } as any)
-const authAddressIndexRoute = authAddressIndexRouteImport.update({
+const protectedAddressIndexRoute = protectedAddressIndexRouteImport.update({
   id: '/address/',
   path: '/address/',
-  getParentRoute: () => authRouteRoute,
+  getParentRoute: () => protectedRouteRoute,
 } as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: '/api/auth/$',
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
-const authTestIdRoute = authTestIdRouteImport.update({
+const protectedTestIdRoute = protectedTestIdRouteImport.update({
   id: '/test/$id',
   path: '/test/$id',
-  getParentRoute: () => authRouteRoute,
+  getParentRoute: () => protectedRouteRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/test/$id': typeof authTestIdRoute
+  '/test/$id': typeof protectedTestIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
-  '/address/': typeof authAddressIndexRoute
-  '/dashboard/': typeof authDashboardIndexRoute
-  '/profile/': typeof authProfileIndexRoute
-  '/test/': typeof authTestIndexRoute
-  '/video_stream/': typeof authVideo_streamIndexRoute
+  '/address/': typeof protectedAddressIndexRoute
+  '/dashboard/': typeof protectedDashboardIndexRoute
+  '/profile/': typeof protectedProfileIndexRoute
+  '/test/': typeof protectedTestIndexRoute
+  '/video_stream/': typeof protectedVideo_streamIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/test/$id': typeof authTestIdRoute
+  '/test/$id': typeof protectedTestIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
-  '/address': typeof authAddressIndexRoute
-  '/dashboard': typeof authDashboardIndexRoute
-  '/profile': typeof authProfileIndexRoute
-  '/test': typeof authTestIndexRoute
-  '/video_stream': typeof authVideo_streamIndexRoute
+  '/address': typeof protectedAddressIndexRoute
+  '/dashboard': typeof protectedDashboardIndexRoute
+  '/profile': typeof protectedProfileIndexRoute
+  '/test': typeof protectedTestIndexRoute
+  '/video_stream': typeof protectedVideo_streamIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/(auth)': typeof authRouteRouteWithChildren
-  '/(auth)/test/$id': typeof authTestIdRoute
+  '/(protected)': typeof protectedRouteRouteWithChildren
+  '/(protected)/test/$id': typeof protectedTestIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
-  '/(auth)/address/': typeof authAddressIndexRoute
-  '/(auth)/dashboard/': typeof authDashboardIndexRoute
-  '/(auth)/profile/': typeof authProfileIndexRoute
-  '/(auth)/test/': typeof authTestIndexRoute
-  '/(auth)/video_stream/': typeof authVideo_streamIndexRoute
+  '/(protected)/address/': typeof protectedAddressIndexRoute
+  '/(protected)/dashboard/': typeof protectedDashboardIndexRoute
+  '/(protected)/profile/': typeof protectedProfileIndexRoute
+  '/(protected)/test/': typeof protectedTestIndexRoute
+  '/(protected)/video_stream/': typeof protectedVideo_streamIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -120,29 +121,29 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
-    | '/(auth)'
-    | '/(auth)/test/$id'
+    | '/(protected)'
+    | '/(protected)/test/$id'
     | '/api/auth/$'
-    | '/(auth)/address/'
-    | '/(auth)/dashboard/'
-    | '/(auth)/profile/'
-    | '/(auth)/test/'
-    | '/(auth)/video_stream/'
+    | '/(protected)/address/'
+    | '/(protected)/dashboard/'
+    | '/(protected)/profile/'
+    | '/(protected)/test/'
+    | '/(protected)/video_stream/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  authRouteRoute: typeof authRouteRouteWithChildren
+  protectedRouteRoute: typeof protectedRouteRouteWithChildren
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/(auth)': {
-      id: '/(auth)'
+    '/(protected)': {
+      id: '/(protected)'
       path: ''
       fullPath: ''
-      preLoaderRoute: typeof authRouteRouteImport
+      preLoaderRoute: typeof protectedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -152,40 +153,40 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/(auth)/video_stream/': {
-      id: '/(auth)/video_stream/'
+    '/(protected)/video_stream/': {
+      id: '/(protected)/video_stream/'
       path: '/video_stream'
       fullPath: '/video_stream/'
-      preLoaderRoute: typeof authVideo_streamIndexRouteImport
-      parentRoute: typeof authRouteRoute
+      preLoaderRoute: typeof protectedVideo_streamIndexRouteImport
+      parentRoute: typeof protectedRouteRoute
     }
-    '/(auth)/test/': {
-      id: '/(auth)/test/'
+    '/(protected)/test/': {
+      id: '/(protected)/test/'
       path: '/test'
       fullPath: '/test/'
-      preLoaderRoute: typeof authTestIndexRouteImport
-      parentRoute: typeof authRouteRoute
+      preLoaderRoute: typeof protectedTestIndexRouteImport
+      parentRoute: typeof protectedRouteRoute
     }
-    '/(auth)/profile/': {
-      id: '/(auth)/profile/'
+    '/(protected)/profile/': {
+      id: '/(protected)/profile/'
       path: '/profile'
       fullPath: '/profile/'
-      preLoaderRoute: typeof authProfileIndexRouteImport
-      parentRoute: typeof authRouteRoute
+      preLoaderRoute: typeof protectedProfileIndexRouteImport
+      parentRoute: typeof protectedRouteRoute
     }
-    '/(auth)/dashboard/': {
-      id: '/(auth)/dashboard/'
+    '/(protected)/dashboard/': {
+      id: '/(protected)/dashboard/'
       path: '/dashboard'
       fullPath: '/dashboard/'
-      preLoaderRoute: typeof authDashboardIndexRouteImport
-      parentRoute: typeof authRouteRoute
+      preLoaderRoute: typeof protectedDashboardIndexRouteImport
+      parentRoute: typeof protectedRouteRoute
     }
-    '/(auth)/address/': {
-      id: '/(auth)/address/'
+    '/(protected)/address/': {
+      id: '/(protected)/address/'
       path: '/address'
       fullPath: '/address/'
-      preLoaderRoute: typeof authAddressIndexRouteImport
-      parentRoute: typeof authRouteRoute
+      preLoaderRoute: typeof protectedAddressIndexRouteImport
+      parentRoute: typeof protectedRouteRoute
     }
     '/api/auth/$': {
       id: '/api/auth/$'
@@ -194,41 +195,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/(auth)/test/$id': {
-      id: '/(auth)/test/$id'
+    '/(protected)/test/$id': {
+      id: '/(protected)/test/$id'
       path: '/test/$id'
       fullPath: '/test/$id'
-      preLoaderRoute: typeof authTestIdRouteImport
-      parentRoute: typeof authRouteRoute
+      preLoaderRoute: typeof protectedTestIdRouteImport
+      parentRoute: typeof protectedRouteRoute
     }
   }
 }
 
-interface authRouteRouteChildren {
-  authTestIdRoute: typeof authTestIdRoute
-  authAddressIndexRoute: typeof authAddressIndexRoute
-  authDashboardIndexRoute: typeof authDashboardIndexRoute
-  authProfileIndexRoute: typeof authProfileIndexRoute
-  authTestIndexRoute: typeof authTestIndexRoute
-  authVideo_streamIndexRoute: typeof authVideo_streamIndexRoute
+interface protectedRouteRouteChildren {
+  protectedTestIdRoute: typeof protectedTestIdRoute
+  protectedAddressIndexRoute: typeof protectedAddressIndexRoute
+  protectedDashboardIndexRoute: typeof protectedDashboardIndexRoute
+  protectedProfileIndexRoute: typeof protectedProfileIndexRoute
+  protectedTestIndexRoute: typeof protectedTestIndexRoute
+  protectedVideo_streamIndexRoute: typeof protectedVideo_streamIndexRoute
 }
 
-const authRouteRouteChildren: authRouteRouteChildren = {
-  authTestIdRoute: authTestIdRoute,
-  authAddressIndexRoute: authAddressIndexRoute,
-  authDashboardIndexRoute: authDashboardIndexRoute,
-  authProfileIndexRoute: authProfileIndexRoute,
-  authTestIndexRoute: authTestIndexRoute,
-  authVideo_streamIndexRoute: authVideo_streamIndexRoute,
+const protectedRouteRouteChildren: protectedRouteRouteChildren = {
+  protectedTestIdRoute: protectedTestIdRoute,
+  protectedAddressIndexRoute: protectedAddressIndexRoute,
+  protectedDashboardIndexRoute: protectedDashboardIndexRoute,
+  protectedProfileIndexRoute: protectedProfileIndexRoute,
+  protectedTestIndexRoute: protectedTestIndexRoute,
+  protectedVideo_streamIndexRoute: protectedVideo_streamIndexRoute,
 }
 
-const authRouteRouteWithChildren = authRouteRoute._addFileChildren(
-  authRouteRouteChildren,
+const protectedRouteRouteWithChildren = protectedRouteRoute._addFileChildren(
+  protectedRouteRouteChildren,
 )
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  authRouteRoute: authRouteRouteWithChildren,
+  protectedRouteRoute: protectedRouteRouteWithChildren,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
 }
 export const routeTree = rootRouteImport

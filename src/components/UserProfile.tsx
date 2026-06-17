@@ -1,15 +1,12 @@
+import { useAuthFunctions } from '#/modules/Auth/hooks/useAuthFunctions'
+
 /**
  * UserProfile component displays the user's profile information and provides a sign-out button.
- * @param param0
+ * @param {userName: string}
  * @returns
  */
-export const UserProfile = ({
-  userName,
-  onSignOut,
-}: {
-  userName: string
-  onSignOut: () => void
-}) => {
+export const UserProfile = ({ userName }: { userName: string }) => {
+  const { signOut } = useAuthFunctions()
   return (
     <section className="container m-auto flex flex-col items-center justify-center py-10 px-4">
       <div className="flex items-center justify-center py-10 flex-col">
@@ -24,7 +21,7 @@ export const UserProfile = ({
       </div>
       <button
         type="button"
-        onClick={onSignOut}
+        onClick={signOut}
         className="w-full max-w-xs m-auto h-9 px-4 text-sm font-medium border border-neutral-300 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
       >
         Sign out

@@ -3,7 +3,7 @@ import { requirePermissions } from '#/lib/permissonsRoles'
 import { VideoStream } from '#/modules/VideoStream'
 import { createFileRoute } from '@tanstack/react-router'
 
-export const Route = createFileRoute('/(auth)/video_stream/')({
+export const Route = createFileRoute('/(protected)/video_stream/')({
   ssr: false,
   beforeLoad: () =>
     requirePermissions([

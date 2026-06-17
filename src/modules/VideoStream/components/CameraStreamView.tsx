@@ -2,6 +2,7 @@ import { memo, useCallback } from 'react'
 import { LatencyBadge } from './LatencyBadge'
 import { PipelineMetricsPanel } from './PipelineMetricsPanel'
 import type { CameraStreamViewProps } from '#/types'
+import { Switch } from '#/components/ui/switch'
 
 export const CameraStreamView = memo(
   ({
@@ -11,6 +12,7 @@ export const CameraStreamView = memo(
     inferenceMetrics,
     registerVideoElement,
     registerOverlayCanvas,
+    shouldDrawOverlay,
   }: CameraStreamViewProps) => {
     const videoRef = useCallback(
       (element: HTMLVideoElement | null) => {
@@ -39,6 +41,15 @@ export const CameraStreamView = memo(
         >
           <h2 style={{ margin: 0 }}>{cameraId}</h2>
           <LatencyBadge latencyMs={latencyMs} />
+          <div className="flex space-x-2">
+            <Switch
+              id="show_detection_overlay"
+              onCheckedChange={(isChecked) =>
+                shouldDrawOverlay(cameraId, isChecked)
+              }
+            />
+            <label htmlFor="show_detection_overlay">Airplane Mode</label>
+          </div>
         </div>
         <div
           style={{ position: 'relative', width: '100%', overflow: 'hidden' }}

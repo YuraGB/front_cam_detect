@@ -2,6 +2,7 @@ import type {
   CameraBinding,
   DetectionFrameMessage,
   ScheduledOverlayDraw,
+  TShouldDrawOverlayFn,
 } from '#/types'
 import { useCallback, useRef, useState } from 'react'
 import {
@@ -29,6 +30,7 @@ const setOverlayCssSize = (
 export const useHelperFunctions = () => {
   const [cameraIds, setCameraIds] = useState<string[]>([])
 
+  const overlaysEnabledRef = useRef<Partial<Record<string, boolean>>>({})
   const animationFramesRef = useRef<
     Partial<Record<string, ScheduledOverlayDraw>>
   >({})
@@ -112,11 +114,16 @@ export const useHelperFunctions = () => {
     }
 
     delete animationFramesRef.current[cameraId]
+    overlaysEnabledRef.current[cameraId] = false
   }, [])
 
   const scheduleOverlayDraw = useCallback(
     (cameraId: string) => {
       if (animationFramesRef.current[cameraId] != null) {
+        return
+      }
+
+      if (overlaysEnabledRef.current[cameraId] === false) {
         return
       }
 
@@ -251,6 +258,8 @@ export const useHelperFunctions = () => {
         return
       }
 
+      overlaysEnabledRef.current[cameraId] = true
+
       syncOverlaySize(cameraId)
       const detectionFrame = latestDetectionByCameraRef.current[cameraId]
       if (detectionFrame?.detections.length) {
@@ -262,6 +271,14 @@ export const useHelperFunctions = () => {
     },
     [ensureCameraBinding, scheduleOverlayDraw, syncOverlaySize],
   )
+
+  const shouldDrawOverlay: TShouldDrawOverlayFn = (cameraId, shoudDraw) => {
+    if (shoudDraw === false) {
+      cancelOverlayDraw(cameraId)
+    } else {
+      overlaysEnabledRef.current[cameraId] = true
+    }
+  }
 
   return {
     ensureCameraBinding,
@@ -280,5 +297,6 @@ export const useHelperFunctions = () => {
     animationFramesRef,
     resizeObserversRef,
     cameraBindingsRef,
+    shouldDrawOverlay,
   }
 }

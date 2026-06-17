@@ -1,7 +1,7 @@
 import { ImagesList } from '#/modules/Images'
 import { createFileRoute } from '@tanstack/react-router'
 
-export const Route = createFileRoute('/(auth)/test/')({
+export const Route = createFileRoute('/(protected)/test/')({
   component: RouteComponent,
 })
 

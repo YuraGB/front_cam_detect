@@ -4,7 +4,7 @@ import { getSessionFn } from './getSession'
 import { redirect } from '@tanstack/react-router'
 import type { ValidateRedirectOptions } from '@tanstack/react-router'
 
-const sessionQueryDataConfiq = queryOptions({
+export const sessionQueryDataConfiq = queryOptions({
   queryKey: ['session'],
   queryFn: getSessionFn,
   staleTime: 60_000,
