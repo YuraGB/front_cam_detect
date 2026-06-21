@@ -1,5 +1,5 @@
 import { BETTER_AUTH_URL, SIGNALING_SERVER_URL } from '#/constants'
-import { tryCatch } from '#/lib/asyncActionHandler'
+import { safeJsonParse, tryCatch } from '#/lib/asyncActionHandler'
 import type { TDBUser } from '../../db/types'
 
 async function apiSyncUser(token: string, dbUser: TDBUser) {
@@ -13,7 +13,7 @@ async function apiSyncUser(token: string, dbUser: TDBUser) {
       },
       body: JSON.stringify({
         ...dbUser,
-        permissionsJson: JSON.parse(dbUser.permissionsJson),
+        permissionsJson: safeJsonParse(dbUser.permissionsJson),
       }),
     })
 

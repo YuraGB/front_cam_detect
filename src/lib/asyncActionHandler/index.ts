@@ -15,3 +15,11 @@ export async function tryCatch<T>(fn: () => Promise<T>): Promise<Result<T>> {
     }
   }
 }
+
+export function safeJsonParse<T = unknown>(value: string): T | null {
+  try {
+    return JSON.parse(value)
+  } catch {
+    return null
+  }
+}

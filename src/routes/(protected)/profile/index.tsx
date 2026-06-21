@@ -6,7 +6,6 @@ import {
 import { AddressForm } from '#/components/AddressForm'
 import { UserProfile } from '#/components/UserProfile'
 import { sessionQueryDataConfiq } from '#/lib/authBeforeLoad'
-import { logger } from '#/lib/frontend_logger'
 
 export const Route = createFileRoute('/(protected)/profile/')({
   component: RouteComponent,

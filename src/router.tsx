@@ -6,7 +6,6 @@ import { getQueryContext } from './integrations/tanstack-query/query-client'
 export function getRouter() {
   const router = createTanStackRouter({
     routeTree,
-    // defaultViewTransition: true,
 
     context: getQueryContext(),
 

@@ -1,6 +1,6 @@
 import { createServerFn } from '@tanstack/react-start'
-import type { TDBUser } from '../server/modules/db/types'
-import { getSessionFn } from './getSession'
+import type { TDBUser } from '#/server/modules/db/types'
+import { getSessionFn } from '#/lib/getSession'
 import { db } from '#/server/modules/db/drizzle'
 import { eq } from 'drizzle-orm'
 import { user } from '#/server/modules/db/schema/auth'
@@ -12,17 +12,18 @@ import {
 } from '#/constants/permissions'
 
 import type { Role } from '#/constants/permissions'
-import { logger } from './frontend_logger'
+import { logger } from '#/lib/frontend_logger'
+import { safeJsonParse } from '#/lib/asyncActionHandler'
 
 export function hasPermission(u: TDBUser, permission: string) {
-  try {
-    const permissions = JSON.parse(u.permissionsJson)
+  const permissions = safeJsonParse(u.permissionsJson)
 
-    return Array.isArray(permissions) && permissions.includes(permission)
-  } catch (error) {
+  if (!permission) {
     logger.error('Failed to parse permissionsJson for user:', u.id)
     return false
   }
+
+  return Array.isArray(permissions) && permissions.includes(permission)
 }
 
 export async function requirePermissions(permissions: string[]) {

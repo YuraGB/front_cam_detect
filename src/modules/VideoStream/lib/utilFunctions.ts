@@ -1,4 +1,5 @@
 import type { StreamType, StreamURL } from '#/constants'
+import { safeJsonParse } from '#/lib/asyncActionHandler'
 import { authClient } from '#/modules/Auth/betterAuthClient/auth-client'
 import type { Detection } from '#/modules/VideoStream/lib/drawDetections'
 import { getStreamName } from '#/modules/VideoStream/lib/getStreamName'
@@ -80,9 +81,7 @@ const decodeMetaCandidate = (metaBytes: Uint8Array): ParsedFrameMeta | null => {
   }
 
   try {
-    return JSON.parse(
-      textDecoder.decode(metaBytes.slice(start, end + 1)),
-    ) as ParsedFrameMeta
+    return safeJsonParse(textDecoder.decode(metaBytes.slice(start, end + 1)))
   } catch {
     return null
   }
@@ -131,7 +130,7 @@ const getPayloadDiagnostics = (
     }
 
     try {
-      JSON.parse(textDecoder.decode(bytes.subarray(4, 4 + candidate)))
+      safeJsonParse(textDecoder.decode(bytes.subarray(4, 4 + candidate)))
       return true
     } catch {
       return false
@@ -187,7 +186,7 @@ const tryExtractFramePayload = (
     : new ArrayBuffer(0)
 
   try {
-    const meta = JSON.parse(textDecoder.decode(metaBytes)) as ParsedFrameMeta
+    const meta = safeJsonParse(textDecoder.decode(metaBytes)) as ParsedFrameMeta
     if (!includeImageBytes) {
       return {
         meta,

@@ -1,3 +1,4 @@
+import { safeJsonParse } from '#/lib/asyncActionHandler'
 import type { WebRtcMessage } from '#/types'
 
 const parseWebRtcMessage = (data: unknown): WebRtcMessage | null => {
@@ -5,11 +6,7 @@ const parseWebRtcMessage = (data: unknown): WebRtcMessage | null => {
     return null
   }
 
-  try {
-    return JSON.parse(data) as WebRtcMessage
-  } catch {
-    return null
-  }
+  return safeJsonParse(data)
 }
 
 export default parseWebRtcMessage

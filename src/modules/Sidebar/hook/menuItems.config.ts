@@ -10,8 +10,8 @@ export const menuItems: MenuItem[] = [
   },
   {
     id: 'profile',
-    name: 'Users',
-    icon: 'Users',
+    name: 'Profile',
+    icon: 'User',
     to: '/profile',
   },
   {

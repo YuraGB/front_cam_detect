@@ -1,3 +1,4 @@
+import { safeJsonParse } from '#/lib/asyncActionHandler'
 import type { Detection } from '#/modules/VideoStream/lib/drawDetections'
 import type { RtcDataMessage, TrackMapEntry } from '#/types'
 import { decodeRtcMessage, isFiniteNumber, parseDetection } from './utils'
@@ -11,7 +12,7 @@ export const parseRtcDataMessage = async (
   }
 
   try {
-    const payload = JSON.parse(rawMessage) as Record<string, unknown>
+    const payload = safeJsonParse(rawMessage) as Record<string, unknown>
 
     if (payload.type === 'track_map') {
       const tracks = Array.isArray(payload.tracks)

@@ -20,8 +20,8 @@ export const syncUser = async (
 ) => {
   /**
    * For getJwtToken to work,
-   * we need to have the session in the context.
-   * Since this is a better-auth hook, we can access the new session from the context and set it before calling getJwtToken.
+   * we need to have the "session" in the context.
+   * Since this is a better-auth hook, we can access the "newSession" from the context and set it before calling getJwtToken.
    */
   if (!ctx) {
     throw new Error('Context is required for user synchronization')
@@ -70,7 +70,6 @@ export const syncUser = async (
 
   if (errorSyncUser) {
     logger.error(`The User with id: ${dbUser.id} was not synchronized`)
-    // In production ".info" will not be displayed
     logger.info(`Error message: ${errorSyncUser}`)
   }
 }

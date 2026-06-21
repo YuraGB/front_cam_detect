@@ -34,9 +34,7 @@ export const useAuthFunctions = () => {
     // remove from the cache/storage
     queryClient.setQueryData(['session'], null)
     queryClient.removeQueries({ queryKey: ['session'] })
-    console.log(queryClient.getQueriesData({ queryKey: ['session'] }))
 
-    // await router.invalidate()
     document.startViewTransition(() => {
       void router.navigate({ to: '/', replace: true })
     })

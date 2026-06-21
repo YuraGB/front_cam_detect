@@ -2,6 +2,7 @@ import { authClient } from '#/modules/Auth/betterAuthClient/auth-client'
 import { useRouter } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
 import { useAuthFunctions } from './useAuthFunctions'
+import { logger } from '#/lib/frontend_logger'
 
 export const useAuthForm = () => {
   const { data: session } = authClient.useSession()

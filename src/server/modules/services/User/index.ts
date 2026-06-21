@@ -1,26 +1,34 @@
+import { tryCatch } from '#/lib/asyncActionHandler'
+import { logger } from '#/lib/frontend_logger'
 import { db } from '#/server/modules/db/drizzle'
 import { eq } from 'drizzle-orm'
 
 export const getUserById = async (id: string) => {
-  try {
-    const user = await db.query.user.findFirst({
+  const { data: user, error: errorFondUser } = await tryCatch(() =>
+    db.query.user.findFirst({
       where: (u) => eq(u.id, id),
-    })
-    return user
-  } catch (error) {
-    console.error('Error fetching user by ID:', error)
-    throw error
+    }),
+  )
+
+  if (errorFondUser) {
+    logger.error(errorFondUser)
+    throw errorFondUser
   }
+
+  return user
 }
 
 export const getUserByEmail = async (email: string) => {
-  try {
-    const user = await db.query.user.findFirst({
+  const { data: user, error: errorFondUser } = await tryCatch(() =>
+    db.query.user.findFirst({
       where: (u) => eq(u.email, email),
-    })
-    return user
-  } catch (error) {
-    console.error('Error fetching user by email:', error)
-    throw error
+    }),
+  )
+
+  if (errorFondUser) {
+    logger.error(errorFondUser)
+    throw errorFondUser
   }
+
+  return user
 }

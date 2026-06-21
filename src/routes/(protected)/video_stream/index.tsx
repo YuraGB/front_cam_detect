@@ -13,14 +13,6 @@ export const Route = createFileRoute('/(protected)/video_stream/')({
     ]),
 
   component: RouteComponent,
-  errorComponent: ({ error }) => {
-    console.log(error.message)
-    if (error.message === 'Forbidden') {
-      return <div>Access denied</div>
-    }
-
-    return <div>Something went wrong</div>
-  },
 })
 
 function RouteComponent() {

@@ -76,8 +76,7 @@ export const auth = betterAuth({
       },
     },
   },
-
-  // We need to sync the user data with the Signaling server after every update or creation of the user.
+  // We need to sync the user data with the signaling server after every user update or creation.
   // This is because the Signaling server is independent and needs to have the user data to manage WebRTC connections and permissions.
   databaseHooks: {
     user: {

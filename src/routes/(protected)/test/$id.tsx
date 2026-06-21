@@ -1,4 +1,6 @@
+import { Button } from '#/components/ui/button'
 import { createFileRoute, useRouter } from '@tanstack/react-router'
+import { MoveLeft } from 'lucide-react'
 
 export const Route = createFileRoute('/(protected)/test/$id')({
   component: RouteComponent,
@@ -10,7 +12,9 @@ function RouteComponent() {
 
   return (
     <>
-      <button
+      <Button
+        variant={'secondary'}
+        className=" py-1 ml-2"
         onClick={() =>
           router.navigate({
             to: '/test',
@@ -20,8 +24,9 @@ function RouteComponent() {
           })
         }
       >
+        <MoveLeft />
         Back
-      </button>
+      </Button>
       <div className="grid w-full gap-4 rounded-xl border border-[var(--line)] bg-[var(--header-bg)] p-4 ">
         <img
           src={`/image-${id}.jpg`}

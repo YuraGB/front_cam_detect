@@ -1,12 +1,15 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, ErrorComponent } from '@tanstack/react-router'
 import { Auth } from '#/modules/Auth'
 import { authBeforeLoader } from '#/lib/authBeforeLoad'
+import { NotFound } from '#/components/NotFound'
 
 export const Route = createFileRoute('/')({
   component: App,
   ssr: true,
   beforeLoad: ({ context }) =>
     authBeforeLoader({ redirectToIfAuth: { to: '/profile' }, context }),
+  errorComponent: ErrorComponent,
+  notFoundComponent: NotFound,
 })
 
 function App() {
