@@ -1,5 +1,5 @@
-import type { TrackMapEntry } from '#/types'
-import { isFiniteNumber } from '../utils'
+import type { Detection, TrackMapEntry } from '#/types'
+import { isFiniteNumber, parseDetection } from '../utils'
 
 type TPayload = Record<string, unknown>
 
@@ -110,4 +110,19 @@ export const formatMetrics = (payload: TPayload) => {
   }
 
   return null
+}
+
+export const formatDetections = (payload: TPayload) => {
+  const detections = Array.isArray(payload.detections)
+    ? payload.detections
+        .map(parseDetection)
+        .filter((detection): detection is Detection => detection !== null)
+    : []
+
+  return {
+    type: 'detection_frame',
+    cameraId: payload.camera_id,
+    detections,
+    timestamp: isFiniteNumber(payload.timestamp) ? payload.timestamp : null,
+  }
 }
