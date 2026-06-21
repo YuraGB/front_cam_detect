@@ -4,6 +4,7 @@ import { authClient } from '../modules/Auth/betterAuthClient/auth-client'
 import { logger } from './frontend_logger'
 import { getUserById } from '#/server/modules/services/User'
 import { safeJsonParse, tryCatch } from './asyncActionHandler'
+import type { Session } from 'better-auth'
 
 export const getSessionFn = createServerFn({ method: 'GET' }).handler(
   getSessionHandler,
@@ -23,34 +24,48 @@ async function getSessionHandler() {
       },
     },
   })
+
   if (res instanceof Response) {
-    const json = await res.json()
-    return json
+    if (!res.ok) return null
+    return await res.json()
   }
 
-  // Adding additional field to the session
-  if (res.data?.user) {
-    const { data: currentUser, error } = await tryCatch(() =>
-      getUserById(res.data!.user.id),
-    )
+  if (!res.data?.session) return null
 
-    if (currentUser) {
-      res.data.user = {
-        ...res.data.user,
-        permissions: safeJsonParse(currentUser.permissionsJson),
-      } as typeof res.data.user & {
-        permissions: typeof currentUser.permissionsJson
-      }
-    }
+  return enrichSession(res.data.session)
+}
 
-    if (error) {
-      if (error instanceof Error) {
-        logger.error(error.message)
-      } else {
-        logger.error(String(error))
-      }
-    }
+async function enrichSession(
+  session: Session & { data?: { user?: { id: string } } },
+) {
+  if (!session.data?.user) {
+    logger.error('The session is required')
+    throw new Error('There is no session')
   }
 
-  return res
+  const userId = session.data.user.id
+  if (!userId) return session
+
+  const { data: user, error } = await tryCatch(() => getUserById(userId))
+
+  if (error) {
+    logger.error('There is an error in get the user by id', userId)
+    throw error
+  }
+
+  if (!user) {
+    logger.warn('There is no user with such id', userId)
+    return session
+  }
+
+  return {
+    ...session,
+    data: {
+      ...session.data,
+      user: {
+        ...session.data.user,
+        permissions: safeJsonParse(user.permissionsJson) ?? [],
+      },
+    },
+  }
 }

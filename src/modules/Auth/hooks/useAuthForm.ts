@@ -2,18 +2,19 @@ import { authClient } from '#/modules/Auth/betterAuthClient/auth-client'
 import { useRouter } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
 import { useAuthFunctions } from './useAuthFunctions'
-import { logger } from '#/lib/frontend_logger'
+import { tryCatch } from '#/lib/asyncActionHandler'
 
 export const useAuthForm = () => {
   const { data: session } = authClient.useSession()
-  const [isSignUp, setIsSignUp] = useState(false)
+  const { emailSignIn, emailSignUp } = useAuthFunctions()
   const router = useRouter()
+
+  const [isSignUp, setIsSignUp] = useState(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [name, setName] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState<boolean>(false)
-  const { emailSignIn, emailSignUp } = useAuthFunctions()
 
   useEffect(() => {
     if (!session?.user) return
@@ -30,28 +31,30 @@ export const useAuthForm = () => {
 
     let result = null
 
-    try {
-      if (isSignUp) {
-        result = await emailSignUp(email, password, name)
-      } else {
-        result = await emailSignIn(email, password)
-      }
+    if (isSignUp) {
+      result = await tryCatch(() => emailSignUp(email, password, name))
+    } else {
+      result = await tryCatch(() => emailSignIn(email, password))
+    }
 
-      if (result.error) {
-        setError(
-          result.error.message || 'An error occurred during authentication',
-        )
-        setLoading(false)
-        return
-      }
-    } catch (err) {
-      setError('An unexpected error occurred')
+    if (result.error) {
+      const errorMessage =
+        result.error instanceof Error
+          ? result.error.message
+          : typeof result.error === 'object' &&
+              'message' in result.error &&
+              typeof (result.error as any).message === 'string'
+            ? (result.error as { message: string }).message
+            : 'An error occurred during authentication'
+
+      setError(errorMessage)
       setLoading(false)
-    } // finally {
-    // There is a blick in the UI when we set loading to false here,
-    // so we will rely on the session effect to navigate and hide the form
-    // setLoading(false)
-    // }
+    }
+
+    if (!result.data) {
+      setError('Somethig went wrong')
+      setLoading(false)
+    }
   }
 
   return {
