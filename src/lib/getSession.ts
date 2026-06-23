@@ -4,7 +4,7 @@ import { authClient } from '../modules/Auth/betterAuthClient/auth-client'
 import { logger } from './frontend_logger'
 import { getUserById } from '#/server/modules/services/User'
 import { safeJsonParse, tryCatch } from './asyncActionHandler'
-import type { Session } from 'better-auth'
+import type { User } from 'better-auth'
 
 export const getSessionFn = createServerFn({ method: 'GET' }).handler(
   getSessionHandler,
@@ -29,22 +29,26 @@ async function getSessionHandler() {
     if (!res.ok) return null
     return await res.json()
   }
-
+  logger.info(res.data)
   if (!res.data?.session) return null
 
-  return enrichSession(res.data.session)
+  const extendetUser = await enrichUser(res.data.user)
+  return {
+    data: {
+      session: res.data.session,
+      user: extendetUser,
+    },
+  }
 }
 
-async function enrichSession(
-  session: Session & { data?: { user?: { id: string } } },
-) {
-  if (!session.data?.user) {
-    logger.error('The session is required')
+async function enrichUser(sessionUser?: User) {
+  if (!sessionUser) {
+    logger.error('The user is required')
     throw new Error('There is no session')
   }
 
-  const userId = session.data.user.id
-  if (!userId) return session
+  const userId = sessionUser.id
+  if (!userId) return sessionUser
 
   const { data: user, error } = await tryCatch(() => getUserById(userId))
 
@@ -55,17 +59,11 @@ async function enrichSession(
 
   if (!user) {
     logger.warn('There is no user with such id', userId)
-    return session
+    return sessionUser
   }
 
   return {
-    ...session,
-    data: {
-      ...session.data,
-      user: {
-        ...session.data.user,
-        permissions: safeJsonParse(user.permissionsJson) ?? [],
-      },
-    },
+    ...sessionUser,
+    permissions: safeJsonParse(user.permissionsJson) ?? [],
   }
 }

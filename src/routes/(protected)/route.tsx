@@ -5,8 +5,8 @@ import { createFileRoute, Outlet } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/(protected)')({
   component: AuthRouteLayout,
-  beforeLoad: ({ context }) =>
-    authBeforeLoader({ redirectToIfNotAuth: { to: '/' }, context }),
+  beforeLoad: ({ context, location }) =>
+    authBeforeLoader({ redirectToIfNotAuth: { to: '/' }, context, location }),
   loader: ({ context }) => context.queryClient.getQueryData(['session']),
 })
 

@@ -2,7 +2,10 @@ import { queryOptions } from '@tanstack/react-query'
 import type { QueryClient } from '@tanstack/react-query'
 import { getSessionFn } from './getSession'
 import { redirect } from '@tanstack/react-router'
-import type { ValidateRedirectOptions } from '@tanstack/react-router'
+import type {
+  ParsedLocation,
+  ValidateRedirectOptions,
+} from '@tanstack/react-router'
 
 export const sessionQueryDataConfiq = queryOptions({
   queryKey: ['session'],
@@ -15,23 +18,28 @@ export const authBeforeLoader = async ({
   redirectToIfAuth,
   redirectToIfNotAuth,
   context,
+  location,
 }: {
   redirectToIfAuth?: ValidateRedirectOptions
   redirectToIfNotAuth?: ValidateRedirectOptions
   context: {
     queryClient: QueryClient
   }
+  location?: ParsedLocation
 }) => {
   // Cached session data in react-query
   const session = await context.queryClient.ensureQueryData(
     sessionQueryDataConfiq,
   )
-  // is Authenticated? If so, redirect to profile
-  if (session.data?.user && redirectToIfAuth) {
+  const user = session?.data?.user
+  const isAuthed = !!user
+  const isRoot = (location?.pathname ?? '/') === '/'
+
+  if (isAuthed && redirectToIfAuth && isRoot) {
     throw redirect(redirectToIfAuth)
   }
 
-  if (!session.data?.user && redirectToIfNotAuth) {
+  if (!isAuthed && redirectToIfNotAuth && !isRoot) {
     throw redirect(redirectToIfNotAuth)
   }
 }

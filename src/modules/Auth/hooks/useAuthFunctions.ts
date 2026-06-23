@@ -3,12 +3,15 @@ import { logger } from '#/lib/frontend_logger'
 import { authClient } from '#/modules/Auth/betterAuthClient/auth-client'
 import { useRouter } from '@tanstack/react-router'
 
+const queryClient = getQueryContext().queryClient
+
 const emailSignUp = async (email: string, password: string, name: string) => {
   const result = await authClient.signUp.email({
     email,
     password,
     name,
   })
+  queryClient.setQueryData(['session'], result)
   return result
 }
 
@@ -20,6 +23,8 @@ export const useAuthFunctions = () => {
       email,
       password,
     })
+
+    queryClient.setQueryData(['session'], result)
     return result
   }
 
@@ -29,7 +34,6 @@ export const useAuthFunctions = () => {
       logger.error(logOut.error)
       return
     }
-    const queryClient = getQueryContext().queryClient
 
     // remove from the cache/storage
     queryClient.setQueryData(['session'], null)
