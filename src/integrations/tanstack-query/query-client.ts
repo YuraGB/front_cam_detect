@@ -1,15 +1,13 @@
 import { QueryClient } from '@tanstack/react-query'
 
-let context:
-  | {
-      queryClient: QueryClient
-    }
-  | undefined
+export type QueryContext = {
+  queryClient: QueryClient
+}
 
-export function getQueryContext() {
-  if (context) return context
+let browserContext: QueryContext | undefined
 
-  const queryClient = new QueryClient({
+function createQueryClient() {
+  return new QueryClient({
     defaultOptions: {
       queries: {
         refetchOnWindowFocus: false,
@@ -18,8 +16,16 @@ export function getQueryContext() {
       },
     },
   })
+}
 
-  context = { queryClient }
+export function getQueryContext(): QueryContext {
+  if (typeof window === 'undefined') {
+    return { queryClient: createQueryClient() }
+  }
 
-  return context
+  if (!browserContext) {
+    browserContext = { queryClient: createQueryClient() }
+  }
+
+  return browserContext
 }

@@ -1,5 +1,9 @@
 import { BETTER_AUTH_URL, SIGNALING_SERVER_URL } from '#/constants'
-import { safeJsonParse, tryCatch } from '#/lib/asyncActionHandler'
+import {
+  safeJsonParse,
+  safeJsonStringify,
+  tryCatch,
+} from '#/lib/asyncActionHandler'
 import type { TDBUser } from '../../db/types'
 
 async function apiSyncUser(token: string, dbUser: TDBUser) {
@@ -11,7 +15,7 @@ async function apiSyncUser(token: string, dbUser: TDBUser) {
         Authorization: `Bearer ${token || ''}`,
         'x-auth-origin': BETTER_AUTH_URL,
       },
-      body: JSON.stringify({
+      body: safeJsonStringify({
         ...dbUser,
         permissionsJson: safeJsonParse(dbUser.permissionsJson),
       }),

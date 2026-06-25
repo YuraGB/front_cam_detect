@@ -1,13 +1,14 @@
 import type { ReactNode } from 'react'
 import { QueryClientProvider } from '@tanstack/react-query'
-import { getQueryContext } from './query-client'
+import { useRouter } from '@tanstack/react-router'
 
 export default function TanStackQueryProvider({
   children,
 }: {
   children: ReactNode
 }) {
-  const { queryClient } = getQueryContext()
+  const router = useRouter()
+  const { queryClient } = router.options.context
 
   return (
     <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>

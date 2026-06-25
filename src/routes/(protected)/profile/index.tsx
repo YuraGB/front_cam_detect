@@ -15,7 +15,7 @@ export const Route = createFileRoute('/(protected)/profile/')({
       sessionQueryDataConfiq,
     )
     if (!session.data?.user) {
-      return redirect({
+      throw redirect({
         to: '/',
       })
     }

@@ -1,9 +1,6 @@
-import { getQueryContext } from '#/integrations/tanstack-query/query-client'
 import { logger } from '#/lib/frontend_logger'
 import { authClient } from '#/modules/Auth/betterAuthClient/auth-client'
 import { useRouter } from '@tanstack/react-router'
-
-const queryClient = getQueryContext().queryClient
 
 const emailSignUp = async (email: string, password: string, name: string) => {
   const result = await authClient.signUp.email({
@@ -11,12 +8,12 @@ const emailSignUp = async (email: string, password: string, name: string) => {
     password,
     name,
   })
-  queryClient.setQueryData(['session'], result)
   return result
 }
 
 export const useAuthFunctions = () => {
   const router = useRouter()
+  const { queryClient } = router.options.context
 
   const emailSignIn = async (email: string, password: string) => {
     const result = await authClient.signIn.email({
@@ -24,7 +21,6 @@ export const useAuthFunctions = () => {
       password,
     })
 
-    queryClient.setQueryData(['session'], result)
     return result
   }
 
@@ -38,6 +34,7 @@ export const useAuthFunctions = () => {
     // remove from the cache/storage
     queryClient.setQueryData(['session'], null)
     queryClient.removeQueries({ queryKey: ['session'] })
+    queryClient.invalidateQueries({ queryKey: ['session'] })
 
     document.startViewTransition(() => {
       void router.navigate({ to: '/', replace: true })

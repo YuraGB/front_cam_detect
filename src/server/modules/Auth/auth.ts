@@ -7,6 +7,12 @@ import { db } from '#/server/modules/db/drizzle'
 import * as schema from '#/server/modules/db/schema/auth'
 import { syncUser } from '#/server/modules/Auth/lib/syncUser'
 import { logger } from '#/lib/frontend_logger'
+import { createAuthMiddleware } from 'better-auth/api'
+import { enrichUser } from '../services/User'
+import { getQueryContext } from '#/integrations/tanstack-query/query-client'
+// import { safeJsonParse } from '#/lib/asyncActionHandler'
+// import { getQueryContext } from '#/integrations/tanstack-query/query-client'
+// import { onExtendUserData } from '#/lib/getSession'
 
 export const auth = betterAuth({
   baseURL: process.env.BETTER_AUTH_URL || 'http://localhost:3000',
@@ -31,6 +37,11 @@ export const auth = betterAuth({
   user: {
     additionalFields: {
       token: {
+        type: 'string',
+        returned: false,
+      },
+
+      image: {
         type: 'string',
         returned: false,
       },
@@ -106,6 +117,25 @@ export const auth = betterAuth({
     enabled: true,
     window: 60,
     max: 100,
+  },
+  hooks: {
+    after: createAuthMiddleware(async (ctx) => {
+      if (ctx.path === '/sign-in/email' || ctx.path === '/sign-up/email') {
+        const newSession = ctx.context.newSession
+        if (!newSession) return
+
+        const extendetUser = await enrichUser(newSession.user)
+
+        const upatedSession = {
+          data: {
+            session: newSession.session,
+            user: extendetUser,
+          },
+        }
+
+        getQueryContext().queryClient.setQueryData(['session'], upatedSession)
+      }
+    }),
   },
   logger: {
     disabled: false,
