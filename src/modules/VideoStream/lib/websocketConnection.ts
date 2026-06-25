@@ -185,8 +185,8 @@ const attachSocketHandlers = ({
     }
 
     void tryCatch(async () => {
-      const message = safeJsonParse(event.data) as { type?: unknown }
-      if (message.type === 'ping' && socket.readyState === WebSocket.OPEN) {
+      const message = safeJsonParse(event.data) as { type?: unknown } | null
+      if (message?.type === 'ping' && socket.readyState === WebSocket.OPEN) {
         socket.send(safeJsonStringify({ type: 'pong' }) || '')
       }
     })
