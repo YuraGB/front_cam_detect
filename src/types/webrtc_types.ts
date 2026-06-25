@@ -59,12 +59,26 @@ interface AnswerMessage {
 interface IceCandidateMessage {
   type: 'ice-candidate'
   candidate: string
-  mid: string
+  mid: string | null
+  peerId?: string
 }
 
 interface RegisteredMessage {
   type: 'registered'
   peerId: string
+}
+
+interface ConnectedMessage {
+  type: 'connected'
+  peerId?: string | null
+}
+
+interface PingMessage {
+  type: 'ping'
+}
+
+interface PongMessage {
+  type: 'pong'
 }
 
 interface SignalingErrorMessage {
@@ -78,6 +92,9 @@ type WebRtcMessage =
   | AnswerMessage
   | IceCandidateMessage
   | RegisteredMessage
+  | ConnectedMessage
+  | PingMessage
+  | PongMessage
   | SignalingErrorMessage
 
 type CameraBinding = {
@@ -99,6 +116,7 @@ export type TShouldDrawOverlayFn = (
 
 type UsePcResult = {
   pcRef: { current?: RTCPeerConnection | null }
+  getPeerConnection: () => RTCPeerConnection
   cameraIds: string[]
   latencyMetrics: Partial<
     Record<string, { latencyMs: number; updatedAt: number }>
@@ -241,6 +259,7 @@ export type {
   AnswerMessage,
   CameraBinding,
   CameraStreamViewProps,
+  ConnectedMessage,
   Detection,
   IceCandidateMessage,
   InferenceMetrics,
@@ -248,6 +267,8 @@ export type {
   LinkProps,
   OfferMessage,
   PipelineMetricsPanelProps,
+  PingMessage,
+  PongMessage,
   RegisteredMessage,
   RegisteredRouter,
   ScheduledFrameCallback,

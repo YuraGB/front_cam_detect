@@ -4,12 +4,13 @@ import { usePc } from './usePc'
 import parseWebRtcMessage from '../lib/parseWebRtcMessage'
 import { OFFER_RETRY_DELAY_MS, WEBRTC_TARGET_PEER_ID } from '#/constants'
 import { usePipelineMetrics } from './usePipelineMetrics'
+import { safeJsonStringify } from '#/lib/asyncActionHandler'
 
 export const useStreams = () => {
   const { connectionState, websockets, connectionControlsRef } = useWebsocket()
   const { pipelineMetrics, recordPipelineMetrics } = usePipelineMetrics()
   const {
-    pcRef: { current: pc },
+    getPeerConnection,
     cameraIds,
     latencyMetrics,
     registerVideoElement,
@@ -21,16 +22,26 @@ export const useStreams = () => {
 
   useEffect(() => {
     const ws = websockets.current.webrtc
-    if (!ws || !pc || connectionState.webrtc !== 'connected') return
+    if (!ws || connectionState.webrtc !== 'connected') return
+    const pc = getPeerConnection()
     const streamControl = connectionControlsRef.current.webrtc
     let offerRetryTimer: number | null = null
+    let isHandlingOffer = false
+    let remotePeerId: string | null = null
+    const pendingIceCandidates: RTCIceCandidateInit[] = []
 
     /**
      * Requests an offer from the remote peer.
      * @returns
      */
     const requestOffer = () => {
-      if (ws.readyState !== WebSocket.OPEN || streamControl.connectRequested) {
+      if (
+        ws.readyState !== WebSocket.OPEN ||
+        streamControl.connectRequested ||
+        pc.connectionState === 'connected' ||
+        pc.connectionState === 'connecting' ||
+        pc.signalingState !== 'stable'
+      ) {
         return
       }
 
@@ -59,8 +70,18 @@ export const useStreams = () => {
 
       try {
         switch (msg.type) {
+          case 'connected':
+          case 'pong':
+            break
+
+          case 'ping':
+            break
+
           case 'registered':
-            requestOffer()
+            if (msg.peerId === streamControl.peerId) {
+              streamControl.isRegistered = true
+              requestOffer()
+            }
             break
 
           case 'error':
@@ -77,45 +98,85 @@ export const useStreams = () => {
             break
 
           case 'offer': {
+            if (
+              isHandlingOffer ||
+              pc.signalingState !== 'stable' ||
+              pc.connectionState === 'connected' ||
+              pc.connectionState === 'connecting'
+            ) {
+              break
+            }
+
+            isHandlingOffer = true
+            remotePeerId = msg.peerId
+            streamControl.connectRequested = true
+
             await pc.setRemoteDescription({
               type: 'offer',
               sdp: msg.sdp,
             })
 
+            while (pendingIceCandidates.length > 0) {
+              const candidate = pendingIceCandidates.shift()
+              if (candidate) {
+                await pc.addIceCandidate(candidate)
+              }
+            }
+
             const answer = await pc.createAnswer()
             await pc.setLocalDescription(answer)
 
-            if (ws.readyState === WebSocket.OPEN) {
+            if (ws.readyState === WebSocket.OPEN && pc.localDescription?.sdp) {
               ws.send(
-                JSON.stringify({
+                safeJsonStringify({
                   type: 'answer',
-                  sdp: answer.sdp,
+                  sdp: pc.localDescription.sdp,
                   targetPeerId: msg.peerId,
-                }),
+                }) || '',
               )
             }
+            isHandlingOffer = false
             break
           }
 
           case 'answer':
-            await pc.setRemoteDescription({
-              type: 'answer',
-              sdp: msg.sdp,
-            })
+            if (pc.signalingState === 'have-local-offer') {
+              await pc.setRemoteDescription({
+                type: 'answer',
+                sdp: msg.sdp,
+              })
+            }
             break
 
-          case 'ice-candidate':
-            await pc.addIceCandidate({
+          case 'ice-candidate': {
+            if (msg.peerId && remotePeerId && msg.peerId !== remotePeerId) {
+              break
+            }
+
+            const candidate = {
               candidate: msg.candidate,
-              sdpMid: msg.mid,
-            })
+              sdpMid: msg.mid ?? undefined,
+            }
+
+            if (!pc.remoteDescription) {
+              pendingIceCandidates.push(candidate)
+              break
+            }
+
+            await pc.addIceCandidate(candidate)
             break
+          }
         }
       } catch (error) {
+        isHandlingOffer = false
+        streamControl.connectRequested = false
         console.error('Failed to handle WebRTC signaling message', error)
       }
     }
 
+    /**
+     * Handle RTC connection
+     */
     ws.addEventListener('message', handler)
     requestOffer()
 
@@ -125,7 +186,12 @@ export const useStreams = () => {
       }
       ws.removeEventListener('message', handler)
     }
-  }, [connectionControlsRef, connectionState.webrtc, pc, websockets])
+  }, [
+    connectionControlsRef,
+    connectionState.webrtc,
+    getPeerConnection,
+    websockets,
+  ])
 
   return {
     cameraIds,

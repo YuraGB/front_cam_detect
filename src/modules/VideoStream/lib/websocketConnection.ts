@@ -6,6 +6,11 @@ import {
   STREAM_URLS,
 } from '#/constants'
 import type { StreamType, StreamURL } from '#/constants'
+import {
+  safeJsonParse,
+  safeJsonStringify,
+  tryCatch,
+} from '#/lib/asyncActionHandler'
 import { logger } from '#/lib/frontend_logger'
 import { createSocket } from '#/modules/VideoStream/lib/utilFunctions'
 import type { StreamConnectionControl, StreamHealth } from '#/types'
@@ -96,7 +101,7 @@ const registerSocketPeer = (
   streamControl.peerId = peerId
 
   socket.send(
-    JSON.stringify({
+    safeJsonStringify({
       type: 'register',
       peerId,
     }),
@@ -167,6 +172,24 @@ const attachSocketHandlers = ({
     updateConnectionState(streamName, 'connected')
     startHeartbeat(streamName, streamControl, options)
     registerSocketPeer(socket, streamName, streamControl)
+  }
+
+  socket.onmessage = (event) => {
+    if (!isCurrentSocket()) {
+      return
+    }
+
+    streamControl.lastMessageAt = Date.now()
+    if (typeof event.data !== 'string') {
+      return
+    }
+
+    void tryCatch(async () => {
+      const message = safeJsonParse(event.data) as { type?: unknown }
+      if (message.type === 'ping' && socket.readyState === WebSocket.OPEN) {
+        socket.send(safeJsonStringify({ type: 'pong' }) || '')
+      }
+    })
   }
 
   socket.onerror = () => {
