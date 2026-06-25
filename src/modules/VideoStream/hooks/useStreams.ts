@@ -28,7 +28,10 @@ export const useStreams = () => {
     let offerRetryTimer: number | null = null
     let isHandlingOffer = false
     let remotePeerId: string | null = null
-    const pendingIceCandidates: RTCIceCandidateInit[] = []
+    const pendingIceCandidates: Array<{
+      candidate: RTCIceCandidateInit
+      peerId: string
+    }> = []
 
     /**
      * Requests an offer from the remote peer.
@@ -117,9 +120,9 @@ export const useStreams = () => {
             })
 
             while (pendingIceCandidates.length > 0) {
-              const candidate = pendingIceCandidates.shift()
-              if (candidate) {
-                await pc.addIceCandidate(candidate)
+              const entry = pendingIceCandidates.shift()
+              if (entry && entry.peerId === remotePeerId) {
+                await pc.addIceCandidate(entry.candidate)
               }
             }
 
@@ -159,7 +162,9 @@ export const useStreams = () => {
             }
 
             if (!pc.remoteDescription) {
-              pendingIceCandidates.push(candidate)
+              if (msg.peerId) {
+                pendingIceCandidates.push({ candidate, peerId: msg.peerId })
+              }
               break
             }
 
