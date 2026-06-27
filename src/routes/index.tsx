@@ -6,8 +6,8 @@ import { NotFound } from '#/components/NotFound'
 export const Route = createFileRoute('/')({
   component: App,
   ssr: true,
-  beforeLoad: ({ context }) =>
-    authBeforeLoader({ redirectToIfAuth: { to: '/profile' }, context }),
+  beforeLoad: async ({ context }) =>
+    await authBeforeLoader({ redirectToIfAuth: { to: '/profile' }, context }),
   errorComponent: ErrorComponent,
   notFoundComponent: NotFound,
 })

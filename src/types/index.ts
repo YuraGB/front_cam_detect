@@ -1,4 +1,5 @@
 import type { LinkProps, RegisteredRouter } from '@tanstack/react-router'
+import type { User } from 'better-auth'
 import type { icons } from 'lucide-react'
 
 export * from './webrtc_types'
@@ -11,5 +12,7 @@ export type SideBarMenuItem = {
   icon: IconName
   to: AllPaths
 }
+
+export type TExtendedSession = User & { permissons: string[] }
 
 export type MenuItem = SideBarMenuItem & { permissions?: string[] }
