@@ -12,12 +12,10 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as protectedRouteRouteImport } from './routes/(protected)/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as protectedVideo_streamIndexRouteImport } from './routes/(protected)/video_stream/index'
-import { Route as protectedTestIndexRouteImport } from './routes/(protected)/test/index'
 import { Route as protectedProfileIndexRouteImport } from './routes/(protected)/profile/index'
 import { Route as protectedDashboardIndexRouteImport } from './routes/(protected)/dashboard/index'
 import { Route as protectedAddressIndexRouteImport } from './routes/(protected)/address/index'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
-import { Route as protectedTestIdRouteImport } from './routes/(protected)/test/$id'
 
 const protectedRouteRoute = protectedRouteRouteImport.update({
   id: '/(protected)',
@@ -34,11 +32,6 @@ const protectedVideo_streamIndexRoute =
     path: '/video_stream/',
     getParentRoute: () => protectedRouteRoute,
   } as any)
-const protectedTestIndexRoute = protectedTestIndexRouteImport.update({
-  id: '/test/',
-  path: '/test/',
-  getParentRoute: () => protectedRouteRoute,
-} as any)
 const protectedProfileIndexRoute = protectedProfileIndexRouteImport.update({
   id: '/profile/',
   path: '/profile/',
@@ -59,75 +52,58 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
-const protectedTestIdRoute = protectedTestIdRouteImport.update({
-  id: '/test/$id',
-  path: '/test/$id',
-  getParentRoute: () => protectedRouteRoute,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/test/$id': typeof protectedTestIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/address/': typeof protectedAddressIndexRoute
   '/dashboard/': typeof protectedDashboardIndexRoute
   '/profile/': typeof protectedProfileIndexRoute
-  '/test/': typeof protectedTestIndexRoute
   '/video_stream/': typeof protectedVideo_streamIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/test/$id': typeof protectedTestIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/address': typeof protectedAddressIndexRoute
   '/dashboard': typeof protectedDashboardIndexRoute
   '/profile': typeof protectedProfileIndexRoute
-  '/test': typeof protectedTestIndexRoute
   '/video_stream': typeof protectedVideo_streamIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/(protected)': typeof protectedRouteRouteWithChildren
-  '/(protected)/test/$id': typeof protectedTestIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/(protected)/address/': typeof protectedAddressIndexRoute
   '/(protected)/dashboard/': typeof protectedDashboardIndexRoute
   '/(protected)/profile/': typeof protectedProfileIndexRoute
-  '/(protected)/test/': typeof protectedTestIndexRoute
   '/(protected)/video_stream/': typeof protectedVideo_streamIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/test/$id'
     | '/api/auth/$'
     | '/address/'
     | '/dashboard/'
     | '/profile/'
-    | '/test/'
     | '/video_stream/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/test/$id'
     | '/api/auth/$'
     | '/address'
     | '/dashboard'
     | '/profile'
-    | '/test'
     | '/video_stream'
   id:
     | '__root__'
     | '/'
     | '/(protected)'
-    | '/(protected)/test/$id'
     | '/api/auth/$'
     | '/(protected)/address/'
     | '/(protected)/dashboard/'
     | '/(protected)/profile/'
-    | '/(protected)/test/'
     | '/(protected)/video_stream/'
   fileRoutesById: FileRoutesById
 }
@@ -160,13 +136,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof protectedVideo_streamIndexRouteImport
       parentRoute: typeof protectedRouteRoute
     }
-    '/(protected)/test/': {
-      id: '/(protected)/test/'
-      path: '/test'
-      fullPath: '/test/'
-      preLoaderRoute: typeof protectedTestIndexRouteImport
-      parentRoute: typeof protectedRouteRoute
-    }
     '/(protected)/profile/': {
       id: '/(protected)/profile/'
       path: '/profile'
@@ -195,31 +164,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/(protected)/test/$id': {
-      id: '/(protected)/test/$id'
-      path: '/test/$id'
-      fullPath: '/test/$id'
-      preLoaderRoute: typeof protectedTestIdRouteImport
-      parentRoute: typeof protectedRouteRoute
-    }
   }
 }
 
 interface protectedRouteRouteChildren {
-  protectedTestIdRoute: typeof protectedTestIdRoute
   protectedAddressIndexRoute: typeof protectedAddressIndexRoute
   protectedDashboardIndexRoute: typeof protectedDashboardIndexRoute
   protectedProfileIndexRoute: typeof protectedProfileIndexRoute
-  protectedTestIndexRoute: typeof protectedTestIndexRoute
   protectedVideo_streamIndexRoute: typeof protectedVideo_streamIndexRoute
 }
 
 const protectedRouteRouteChildren: protectedRouteRouteChildren = {
-  protectedTestIdRoute: protectedTestIdRoute,
   protectedAddressIndexRoute: protectedAddressIndexRoute,
   protectedDashboardIndexRoute: protectedDashboardIndexRoute,
   protectedProfileIndexRoute: protectedProfileIndexRoute,
-  protectedTestIndexRoute: protectedTestIndexRoute,
   protectedVideo_streamIndexRoute: protectedVideo_streamIndexRoute,
 }
 

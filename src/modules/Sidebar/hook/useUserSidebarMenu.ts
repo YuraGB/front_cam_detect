@@ -5,7 +5,8 @@ import type { SideBarMenuItem } from '#/types'
 
 export const useUserSidebarMenu = () => {
   const session = useLoaderData({ from: '/(protected)' })
-  const userPermissions = session.data.user.permissions
+  if (!session) return []
+  const userPermissions = session.user.permissions
   const visibleItems: SideBarMenuItem[] = menuItems
     .filter((item) => canAccess(userPermissions as string[], item.permissions))
     .map(

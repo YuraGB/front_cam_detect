@@ -1,31 +1,14 @@
-import {
-  createFileRoute,
-  redirect,
-  useLoaderData,
-} from '@tanstack/react-router'
+import { createFileRoute, useLoaderData } from '@tanstack/react-router'
 import { AddressForm } from '#/components/AddressForm'
 import { UserProfile } from '#/components/UserProfile'
-import { sessionQueryDataConfiq } from '#/lib/authBeforeLoad'
 
 export const Route = createFileRoute('/(protected)/profile/')({
   component: RouteComponent,
-
-  loader: async ({ context }) => {
-    const session = await context.queryClient.ensureQueryData(
-      sessionQueryDataConfiq,
-    )
-    if (!session.data?.user) {
-      throw redirect({
-        to: '/',
-      })
-    }
-
-    return session
-  },
+  beforeLoad: () => console.log('[profile page]'),
 })
 
 function RouteComponent() {
-  const session = useLoaderData({ from: '/(protected)/profile/' })
+  const session = useLoaderData({ from: '/(protected)' })
 
   const user = session.data?.user
 

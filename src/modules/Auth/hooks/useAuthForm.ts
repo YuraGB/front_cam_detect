@@ -1,13 +1,14 @@
 import { authClient } from '#/modules/Auth/betterAuthClient/auth-client'
-import { useRouter } from '@tanstack/react-router'
+
 import { useEffect, useState } from 'react'
 import { useAuthFunctions } from './useAuthFunctions'
 import { tryCatch } from '#/lib/asyncActionHandler'
+import { useAuthCache } from './useAuthCache'
 
 export const useAuthForm = () => {
   const { data: session } = authClient.useSession()
   const { emailSignIn, emailSignUp } = useAuthFunctions()
-  const router = useRouter()
+  const { setSessionToTheCache } = useAuthCache()
 
   const [isSignUp, setIsSignUp] = useState(false)
   const [email, setEmail] = useState('')
@@ -18,10 +19,7 @@ export const useAuthForm = () => {
 
   useEffect(() => {
     if (!session?.user) return
-    router.navigate({
-      to: '/profile',
-      replace: true,
-    })
+    setSessionToTheCache(email, session)
   }, [session?.user])
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -71,6 +69,5 @@ export const useAuthForm = () => {
     setName,
     handleSubmit,
     setError,
-    image: session?.user.image || null,
   }
 }

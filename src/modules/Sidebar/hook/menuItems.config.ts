@@ -14,12 +14,7 @@ export const menuItems: MenuItem[] = [
     icon: 'User',
     to: '/profile',
   },
-  {
-    id: 'tests',
-    name: 'Tests',
-    icon: 'Images',
-    to: '/test',
-  },
+
   {
     id: 'streams',
     name: 'Streams',

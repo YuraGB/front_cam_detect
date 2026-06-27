@@ -1,6 +1,7 @@
 import { logger } from '#/lib/frontend_logger'
 import { authClient } from '#/modules/Auth/betterAuthClient/auth-client'
 import { useRouter } from '@tanstack/react-router'
+import { useAuthCache } from './useAuthCache'
 
 const emailSignUp = async (email: string, password: string, name: string) => {
   const result = await authClient.signUp.email({
@@ -13,7 +14,7 @@ const emailSignUp = async (email: string, password: string, name: string) => {
 
 export const useAuthFunctions = () => {
   const router = useRouter()
-  const { queryClient } = router.options.context
+  const { removeSessionFromCache } = useAuthCache()
 
   const emailSignIn = async (email: string, password: string) => {
     const result = await authClient.signIn.email({
@@ -32,9 +33,7 @@ export const useAuthFunctions = () => {
     }
 
     // remove from the cache/storage
-    queryClient.setQueryData(['session'], null)
-    queryClient.removeQueries({ queryKey: ['session'] })
-    queryClient.invalidateQueries({ queryKey: ['session'] })
+    removeSessionFromCache()
 
     document.startViewTransition(() => {
       void router.navigate({ to: '/', replace: true })
