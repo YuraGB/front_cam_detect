@@ -19,7 +19,10 @@ export const useAuthForm = () => {
 
   useEffect(() => {
     if (!session?.user) return
-    setSessionToTheCache(email, session)
+    setSessionToTheCache(session).catch((e) => {
+      setLoading(false)
+      setError(e)
+    })
   }, [session?.user])
 
   const handleSubmit = async (e: React.FormEvent) => {

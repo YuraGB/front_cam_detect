@@ -10,7 +10,7 @@ export const Route = createFileRoute('/(protected)/profile/')({
 function RouteComponent() {
   const session = useLoaderData({ from: '/(protected)' })
 
-  const user = session.data?.user
+  const user = session?.user
 
   return (
     <article className="page-wrap px-4 pb-8 pt-14">
