@@ -13,6 +13,6 @@ export type SideBarMenuItem = {
   to: AllPaths
 }
 
-export type TExtendedSession = User & { permissons: string[] }
+export type TExtendedUser = User & { permissons: string[] }
 
 export type MenuItem = SideBarMenuItem & { permissions?: string[] }

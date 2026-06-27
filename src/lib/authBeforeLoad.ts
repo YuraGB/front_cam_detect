@@ -23,7 +23,7 @@ export const authBeforeLoader = async ({
   const session = await context.queryClient.ensureQueryData(
     sessionQueryDataConfiq,
   )
-  console.log(26, session)
+
   const user = session?.user
   const isAuthed = !!user
   const isRoot = (location?.pathname ?? '/') === '/'
