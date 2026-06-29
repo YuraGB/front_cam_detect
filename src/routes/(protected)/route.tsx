@@ -1,18 +1,20 @@
 import { SidebarTrigger } from '#/components/ui/sidebar'
 import { authBeforeLoader } from '#/lib/authBeforeLoad'
+import { sessionQueryDataConfiq } from '#/modules/Auth/hooks/useAuthCache'
 import { UserSidebar } from '#/modules/Sidebar'
 import { createFileRoute, Outlet } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/(protected)')({
   component: AuthRouteLayout,
-  beforeLoad: async ({ context, location }) => {
+  ssr: true,
+  beforeLoad: async ({ context, location }) =>
     await authBeforeLoader({
       redirectToIfNotAuth: { to: '/' },
       context,
       location,
-    })
-  },
-  loader: ({ context }) => context.queryClient.getQueryData(['session']),
+    }),
+  loader: ({ context }) =>
+    context.queryClient.ensureQueryData(sessionQueryDataConfiq),
 })
 
 function AuthRouteLayout() {

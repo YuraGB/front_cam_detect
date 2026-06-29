@@ -1,18 +1,16 @@
 import { betterAuth } from 'better-auth'
 import { tanstackStartCookies } from 'better-auth/tanstack-start'
 import { drizzleAdapter } from '@better-auth/drizzle-adapter'
-import { jwt } from 'better-auth/plugins'
+import { customSession, jwt } from 'better-auth/plugins'
 import { JWT_AUDIENCE, JWT_ISSUER } from '#/constants'
 import { db } from '#/server/modules/db/drizzle'
 import * as schema from '#/server/modules/db/schema/auth'
 import { syncUser } from '#/server/modules/Auth/lib/syncUser'
 import { logger } from '#/lib/frontend_logger'
 import { createAuthMiddleware } from 'better-auth/api'
-import { enrichUser } from '../services/User'
+import { enrichUser, getUserById } from '../services/User'
 import { getQueryContext } from '#/integrations/tanstack-query/query-client'
-// import { safeJsonParse } from '#/lib/asyncActionHandler'
-// import { getQueryContext } from '#/integrations/tanstack-query/query-client'
-// import { onExtendUserData } from '#/lib/getSession'
+import { safeJsonParse } from '#/lib/asyncActionHandler'
 
 export const auth = betterAuth({
   baseURL: process.env.BETTER_AUTH_URL || 'http://localhost:3000',
@@ -111,6 +109,23 @@ export const auth = betterAuth({
         rotationInterval: 60 * 60 * 24 * 30,
         gracePeriod: 60 * 60 * 24 * 30,
       },
+    }),
+    customSession(async ({ user, session }) => {
+      const currentUser = await getUserById(session.userId)
+
+      // todo no current user message
+      if (!currentUser) return { session, user: { ...user, permissions: [''] } }
+      const userPermissions = safeJsonParse(currentUser.permissionsJson)
+
+      return {
+        user: {
+          ...user,
+          permissions: Array.isArray(userPermissions)
+            ? (userPermissions as string[])
+            : [''],
+        },
+        session,
+      }
     }),
   ],
   rateLimit: {

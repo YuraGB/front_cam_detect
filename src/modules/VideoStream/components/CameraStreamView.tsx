@@ -43,12 +43,14 @@ export const CameraStreamView = memo(
           <LatencyBadge latencyMs={latencyMs} />
           <div className="flex space-x-2">
             <Switch
-              id="show_detection_overlay"
+              id={`show_detection_overlay_${cameraId}`}
               onCheckedChange={(isChecked) =>
                 shouldDrawOverlay(cameraId, isChecked)
               }
             />
-            <label htmlFor="show_detection_overlay">Airplane Mode</label>
+            <label htmlFor={`show_detection_overlay_${cameraId}`}>
+              Airplane Mode
+            </label>
           </div>
         </div>
         <div

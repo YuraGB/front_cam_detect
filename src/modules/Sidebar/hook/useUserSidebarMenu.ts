@@ -1,22 +1,30 @@
 import { canAccess } from '#/lib/permissonsRoles'
-import { useLoaderData } from '@tanstack/react-router'
 import { menuItems } from './menuItems.config'
+import { authClient } from '#/modules/Auth/betterAuthClient/auth-client'
+import { useEffect, useState } from 'react'
 import type { SideBarMenuItem } from '#/types'
 
 export const useUserSidebarMenu = () => {
-  const session = useLoaderData({ from: '/(protected)' })
-  if (!session) return []
-  const userPermissions = session.user.permissions
-  const visibleItems: SideBarMenuItem[] = menuItems
-    .filter((item) => canAccess(userPermissions as string[], item.permissions))
-    .map(
-      ({ id, icon = 'House', name, to }): SideBarMenuItem => ({
-        id: id,
-        icon: icon,
-        name: name,
-        to: to,
-      }),
-    )
+  const { data: session } = authClient.useSession()
+  const [links, setLinks] = useState<SideBarMenuItem[]>([])
 
-  return visibleItems
+  useEffect(() => {
+    if (session) {
+      let userPermissions = session.user.permissions
+      userPermissions = Array.isArray(userPermissions) ? userPermissions : []
+
+      const visualLinks = menuItems
+        .filter((item) => canAccess(userPermissions, item.permissions))
+        .map(({ id, icon = 'House', name, to }) => ({
+          id,
+          icon,
+          name,
+          to,
+        }))
+
+      setLinks(visualLinks)
+    }
+  }, [session])
+
+  return { menuItems: links }
 }

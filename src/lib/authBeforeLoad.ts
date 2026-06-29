@@ -19,7 +19,7 @@ export const authBeforeLoader = async ({
   }
   location?: ParsedLocation
 }) => {
-  // Cached session data in react-query
+  // get/fetch (cached first) session data from react-query
   const session = await context.queryClient.ensureQueryData(
     sessionQueryDataConfiq,
   )

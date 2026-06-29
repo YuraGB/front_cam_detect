@@ -12,13 +12,7 @@ const STREAM_TYPES = [
   'webrtc',
 ] as const
 
-const STREAM_URLS = [
-  // 'ws://localhost:3002/ws?type=liveStream',
-  // 'ws://localhost:3002/ws?type=detectionStream',
-  // 'ws://localhost:3002/ws/file-frames',
-  // 'ws://localhost:3001/ws?type=webrtc',
-  'ws://127.0.0.1:3002/ws?type=webrtc',
-] as const
+const STREAM_URLS = ['ws://127.0.0.1:3002/ws?type=webrtc'] as const
 export type StreamType = (typeof STREAM_TYPES)[number]
 export type StreamURL = (typeof STREAM_URLS)[number]
 

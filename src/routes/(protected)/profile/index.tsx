@@ -4,7 +4,6 @@ import { UserProfile } from '#/components/UserProfile'
 
 export const Route = createFileRoute('/(protected)/profile/')({
   component: RouteComponent,
-  beforeLoad: () => console.log('[profile page]'),
 })
 
 function RouteComponent() {

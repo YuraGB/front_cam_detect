@@ -1,10 +1,3 @@
-import { createServerFn } from '@tanstack/react-start'
-import type { TDBUser } from '#/server/modules/db/types'
-import { getSessionFn } from '#/lib/getSession'
-import { db } from '#/server/modules/db/drizzle'
-import { eq } from 'drizzle-orm'
-import { user } from '#/server/modules/db/schema/auth'
-
 import {
   ALL_PERMISSIONS,
   ROLES,
@@ -13,53 +6,43 @@ import {
 
 import type { Role } from '#/constants/permissions'
 import { logger } from '#/lib/frontend_logger'
-import { safeJsonParse } from '#/lib/asyncActionHandler'
+import type { QueryClient } from '@tanstack/react-query'
+import type { TCachedSession, TExtendedUser } from '#/types'
 
-export function hasPermission(u: TDBUser, permission: string) {
-  const permissions = safeJsonParse(u.permissionsJson)
-
-  if (!permission) {
+export function hasPermission(u: TExtendedUser, permission: string) {
+  const permissions = u.permissions
+  console.log(typeof u.permissions)
+  if (!Array.isArray(u.permissions)) {
     logger.error('Failed to parse permissionsJson for user:', u.id)
     return false
   }
 
-  return Array.isArray(permissions) && permissions.includes(permission)
+  return permissions.includes(permission)
 }
 
-export async function requirePermissions(permissions: string[]) {
-  const currentUser = await getCurrentUser()
-
+export function isPermitted(permissions: string[], currentUser: TExtendedUser) {
   const missing = permissions.filter(
     (permission) => !hasPermission(currentUser, permission),
   )
 
   if (missing.length > 0) {
-    throw new Error('Forbidden')
+    return false
   }
 
-  return currentUser
+  return true
 }
 
-export const getCurrentUser = createServerFn()
-  .inputValidator(null)
-  .handler(async () => {
-    const session = await getSessionFn()
-    const sessionUser = session.data?.user
+export const getCurrentUser = (context: { queryClient: QueryClient }) => {
+  const currentSession = context.queryClient.getQueryData<TCachedSession>([
+    'session',
+  ])
+  console.log(47, currentSession)
+  if (!currentSession) {
+    return
+  }
 
-    if (!sessionUser) {
-      throw new Error('Unauthorized')
-    }
-
-    const dbUser = await db.query.user.findFirst({
-      where: eq(user.id, sessionUser.id),
-    })
-
-    if (!dbUser) {
-      throw new Error('User missing')
-    }
-
-    return dbUser
-  })
+  return currentSession.user
+}
 
 export function getPermissionsForRole(role: Role) {
   return ROLES_PERMISSIONS[role as unknown as keyof typeof ROLES_PERMISSIONS]

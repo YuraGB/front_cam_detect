@@ -8,6 +8,7 @@ export const Route = createFileRoute('/')({
   ssr: true,
   beforeLoad: async ({ context }) =>
     await authBeforeLoader({ redirectToIfAuth: { to: '/profile' }, context }),
+
   errorComponent: ErrorComponent,
   notFoundComponent: NotFound,
 })

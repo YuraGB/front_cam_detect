@@ -8,7 +8,6 @@ import {
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { TanStackDevtools } from '@tanstack/react-devtools'
 import Footer from '#/components/Footer'
-import { Header } from '#/components/Header'
 
 import TanStackQueryProvider from '#/integrations/tanstack-query/root-provider'
 
@@ -20,6 +19,7 @@ import appCss from '../styles.css?url'
 
 import type { QueryClient } from '@tanstack/react-query'
 import { RootErrorBoundary } from '../components/ErrorBoundary'
+import { Header } from '#/components/Header/Header'
 
 interface MyRouterContext {
   queryClient: QueryClient
