@@ -24,9 +24,10 @@ export const permissionsQueryDataConfig = (email: string) =>
 export const getCurrentSessionUserFromContext = async (context: {
   queryClient: QueryClient
 }): Promise<TExtendedUser | null> => {
-  return (await context.queryClient.ensureQueryData(
+  const session = await context.queryClient.ensureQueryData(
     sessionQueryDataConfiq,
-  )) as TExtendedUser | null
+  )
+  return session?.user ?? null
 }
 
 export const useAuthCache = () => {
