@@ -1,5 +1,6 @@
 import { createAuthClient } from 'better-auth/react'
-import { jwtClient } from 'better-auth/client/plugins'
+import { customSessionClient, jwtClient } from 'better-auth/client/plugins'
+import type { auth } from '#/server/modules/Auth/auth'
 
 const getBaseURL = () => {
   if (typeof window !== 'undefined') {
@@ -10,5 +11,5 @@ const getBaseURL = () => {
 
 export const authClient = createAuthClient({
   baseURL: getBaseURL(),
-  plugins: [jwtClient()],
+  plugins: [jwtClient(), customSessionClient<typeof auth>()],
 })

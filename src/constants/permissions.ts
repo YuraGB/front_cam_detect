@@ -1,5 +1,5 @@
-/* react-doctor-disable */
-/** This file defines the permissions and roles used in the application.
+/**
+ * This file defines the permissions and roles used in the application.
  * It also provides utility functions for checking permissions and retrieving permissions for roles.
  */
 

@@ -1,5 +1,4 @@
 import type { StreamType } from '#/constants'
-import { authClient } from '#/modules/Auth/betterAuthClient/auth-client'
 import type { StreamHealth } from '#/types'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import {
@@ -9,6 +8,7 @@ import {
 } from '../lib/websocketConnection'
 import type { WebsocketRuntime } from '../lib/websocketConnection'
 import { emptyConnectionState } from '../lib/utils'
+import { useLoaderData } from '@tanstack/react-router'
 
 export const useWebsocket = () => {
   const [connectionState, setConnectionState] =
@@ -17,8 +17,8 @@ export const useWebsocket = () => {
   const websocketsRef = useRef(runtime.websockets)
   const connectionControlsRef = useRef(runtime.connectionControls)
 
-  const { data: session, error: authError } = authClient.useSession()
-  const isAuthenticated = Boolean(session) && !authError
+  const session = useLoaderData({ from: '/(protected)' })
+  const isAuthenticated = Boolean(session)
 
   const updateConnectionState = useCallback(
     (streamName: StreamType, status: StreamHealth): void => {

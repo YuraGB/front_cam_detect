@@ -6,8 +6,6 @@ import { Button } from '#/components/ui/button'
 import { Input } from '#/components/ui/input'
 import { Textarea as ShadcnTextarea } from '#/components/ui/textarea'
 import * as ShadcnSelect from '#/components/ui/select'
-import { Slider as ShadcnSlider } from '#/components/ui/slider'
-import { Switch as ShadcnSwitch } from '#/components/ui/switch'
 import { Label } from '#/components/ui/label'
 
 export function SubscribeButton({ label }: { label: string }) {
