@@ -11,7 +11,7 @@ import type { TCachedSession, TExtendedUser } from '#/types'
 
 export function hasPermission(u: TExtendedUser, permission: string) {
   const permissions = u.permissions
-  console.log(typeof u.permissions)
+
   if (!Array.isArray(u.permissions)) {
     logger.error('Failed to parse permissionsJson for user:', u.id)
     return false
@@ -36,7 +36,6 @@ export const getCurrentUser = (context: { queryClient: QueryClient }) => {
   const currentSession = context.queryClient.getQueryData<TCachedSession>([
     'session',
   ])
-  console.log(47, currentSession)
   if (!currentSession) {
     return
   }
