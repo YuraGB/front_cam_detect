@@ -113,18 +113,21 @@ export const auth = betterAuth({
     customSession(async ({ user, session }) => {
       const currentUser = await getUserById(session.userId)
 
-      // todo no current user message
-      if (!currentUser) return { session, user: { ...user, permissions: [''] } }
+      if (!currentUser) return { session, user: { ...user, permissions: [] } }
       const userPermissions = safeJsonParse(currentUser.permissionsJson)
+      const permissions = Array.isArray(userPermissions)
+        ? userPermissions.filter(
+            (permission): permission is string =>
+              typeof permission === 'string',
+          )
+        : []
 
       return {
+        session,
         user: {
           ...user,
-          permissions: Array.isArray(userPermissions)
-            ? (userPermissions as string[])
-            : [''],
+          permissions,
         },
-        session,
       }
     }),
   ],
@@ -132,25 +135,6 @@ export const auth = betterAuth({
     enabled: true,
     window: 60,
     max: 100,
-  },
-  hooks: {
-    after: createAuthMiddleware(async (ctx) => {
-      if (ctx.path === '/sign-in/email' || ctx.path === '/sign-up/email') {
-        const newSession = ctx.context.newSession
-        if (!newSession) return
-
-        const extendetUser = await enrichUser(newSession.user)
-
-        const upatedSession = {
-          data: {
-            session: newSession.session,
-            user: extendetUser,
-          },
-        }
-
-        getQueryContext().queryClient.setQueryData(['session'], upatedSession)
-      }
-    }),
   },
   logger: {
     disabled: false,
