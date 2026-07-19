@@ -1,8 +1,6 @@
-import { PERMISSIONS } from '#/constants/permissions'
-import { isPermitted } from '#/lib/permissonsRoles'
 import { VideoStream } from '#/modules/VideoStream'
-import type { TExtendedUser } from '#/types'
-import { createFileRoute, useLoaderData } from '@tanstack/react-router'
+import { useVideoStreamAccess } from '#/modules/VideoStream/hooks/useVideoStreamAccess'
+import { createFileRoute } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/(protected)/video_stream/')({
   ssr: false,
@@ -10,22 +8,16 @@ export const Route = createFileRoute('/(protected)/video_stream/')({
 })
 
 function RouteComponent() {
-  const session = useLoaderData({ from: '/(protected)' })
-
-  if (!session) return null
-
-  const hasAccess = isPermitted(
-    [
-      PERMISSIONS.ALERTS_READ,
-      PERMISSIONS.STREAM_READ,
-      PERMISSIONS.DETECTION_READ,
-    ],
-    session.user,
-  )
-
+  const hasAccess = useVideoStreamAccess()
   if (!hasAccess) {
-    return
+    return (
+      <main className="page-wrap px-4 pb-8 pt-14">
+        <h1 className="text-2xl font-bold">Access Denied</h1>
+        <p>You do not have permission to access this page.</p>
+      </main>
+    )
   }
+
   return (
     <main className="page-wrap px-4 pb-8 pt-14">
       <VideoStream />

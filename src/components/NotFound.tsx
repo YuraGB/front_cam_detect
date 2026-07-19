@@ -1,5 +1,3 @@
-// src/components/not-found.tsx
-
 import { Link } from '@tanstack/react-router'
 
 export function NotFound() {

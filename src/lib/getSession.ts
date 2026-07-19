@@ -1,22 +1,21 @@
 import { getRequestHeaders } from '@tanstack/react-start/server'
 import { createServerFn } from '@tanstack/react-start'
-import { getUserByEmail } from '#/server/modules/services/User'
-import { safeJsonParse } from './asyncActionHandler'
 import { auth } from '#/server/modules/Auth/auth'
+import type { Session } from 'node_modules/better-auth/dist/types/models.d.mts'
+import type { TExtendedUser } from '#/types'
 
 export const getSessionFn = createServerFn({ method: 'GET' }).handler(
   getSessionHandler,
 )
 
-export const getPermissionsFn = createServerFn({ method: 'GET' })
-  .inputValidator((data: { email: string }) => data)
-  .handler(getPermissionsHandler)
-
 /**
- *
- * @returns {Session}
+ * Retrieves the current user session.
+ * @returns {{user: TExtendedUser, session: Session } | null} - Returns the session object if available, otherwise returns null.
  */
-async function getSessionHandler() {
+async function getSessionHandler(): Promise<{
+  user: TExtendedUser
+  session: Session
+} | null> {
   const headers = getRequestHeaders()
 
   const session = await auth.api.getSession({
@@ -24,15 +23,4 @@ async function getSessionHandler() {
   })
 
   return session ?? null
-}
-
-async function getPermissionsHandler({
-  data,
-}: { data?: { email: string } } = {}): Promise<any | null> {
-  const email = data?.email
-  if (!email) return null
-
-  const user = await getUserByEmail(email)
-  if (!user) return null
-  return safeJsonParse(user.permissionsJson)
 }

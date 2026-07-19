@@ -4,7 +4,7 @@ import type {
   ParsedLocation,
   ValidateRedirectOptions,
 } from '@tanstack/react-router'
-import { sessionQueryDataConfiq } from '#/modules/Auth/hooks/useAuthCache'
+import { getCurrentSessionUserFromContext } from './getCurrentSessionFromContext'
 
 export const authBeforeLoader = async ({
   redirectToIfAuth,
@@ -20,11 +20,8 @@ export const authBeforeLoader = async ({
   location?: ParsedLocation
 }) => {
   // get/fetch (cached first) session data from react-query
-  const session = await context.queryClient.ensureQueryData(
-    sessionQueryDataConfiq,
-  )
+  const user = await getCurrentSessionUserFromContext(context)
 
-  const user = session?.user
   const isAuthed = !!user
   const isRoot = (location?.pathname ?? '/') === '/'
 

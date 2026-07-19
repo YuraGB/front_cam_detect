@@ -5,6 +5,7 @@ import parseWebRtcMessage from '../lib/parseWebRtcMessage'
 import { OFFER_RETRY_DELAY_MS, WEBRTC_TARGET_PEER_ID } from '#/constants'
 import { usePipelineMetrics } from './usePipelineMetrics'
 import { safeJsonStringify } from '#/lib/asyncActionHandler'
+import { logger } from '#/lib/frontend_logger'
 
 export const useStreams = () => {
   const { connectionState, websockets, connectionControlsRef } = useWebsocket()
@@ -48,12 +49,13 @@ export const useStreams = () => {
         return
       }
 
-      ws.send(
-        JSON.stringify({
-          type: 'viewer-join',
-          targetPeerId: WEBRTC_TARGET_PEER_ID,
-        }),
-      )
+      const message = safeJsonStringify({
+        type: 'viewer-join',
+        targetPeerId: WEBRTC_TARGET_PEER_ID,
+      })
+
+      if (message) ws.send(message)
+
       streamControl.connectRequested = true
     }
 
@@ -175,7 +177,7 @@ export const useStreams = () => {
       } catch (error) {
         isHandlingOffer = false
         streamControl.connectRequested = false
-        console.error('Failed to handle WebRTC signaling message', error)
+        logger.error('Failed to handle WebRTC signaling message', error)
       }
     }
 

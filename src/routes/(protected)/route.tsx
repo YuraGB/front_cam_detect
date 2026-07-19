@@ -1,6 +1,6 @@
 import { SidebarTrigger } from '#/components/ui/sidebar'
 import { authBeforeLoader } from '#/lib/authBeforeLoad'
-import { sessionQueryDataConfiq } from '#/modules/Auth/hooks/useAuthCache'
+import { sessionQueryDataConfiq } from '#/lib/getCurrentSessionFromContext'
 import { UserSidebar } from '#/modules/Sidebar'
 import { createFileRoute, Outlet } from '@tanstack/react-router'
 

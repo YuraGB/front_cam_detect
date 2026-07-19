@@ -12,18 +12,18 @@ const emailSignUp = async (email: string, password: string, name: string) => {
   return result
 }
 
+const emailSignIn = async (email: string, password: string) => {
+  const result = await authClient.signIn.email({
+    email,
+    password,
+  })
+
+  return result
+}
+
 export const useAuthFunctions = () => {
   const router = useRouter()
   const { removeSessionFromCache } = useAuthCache()
-
-  const emailSignIn = async (email: string, password: string) => {
-    const result = await authClient.signIn.email({
-      email,
-      password,
-    })
-
-    return result
-  }
 
   const signOut = async () => {
     const logOut = await authClient.signOut()

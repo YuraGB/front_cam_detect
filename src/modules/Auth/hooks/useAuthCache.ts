@@ -1,34 +1,7 @@
 import { tryCatch } from '#/lib/asyncActionHandler'
-import { getPermissionsFn, getSessionFn } from '#/lib/getSession'
 import type { TExtendedUser } from '#/types'
-import { queryOptions } from '@tanstack/react-query'
-import type { QueryClient } from '@tanstack/react-query'
 import { useRouter } from '@tanstack/react-router'
 import type { Session } from 'better-auth'
-
-export const sessionQueryDataConfiq = queryOptions({
-  queryKey: ['session'],
-  queryFn: getSessionFn,
-  staleTime: 60_000,
-  gcTime: Infinity,
-})
-
-export const permissionsQueryDataConfig = (email: string) =>
-  queryOptions({
-    queryKey: ['permissions', email],
-    queryFn: () => getPermissionsFn({ data: { email } }),
-    staleTime: 60_000,
-    gcTime: Infinity,
-  })
-
-export const getCurrentSessionUserFromContext = async (context: {
-  queryClient: QueryClient
-}): Promise<TExtendedUser | null> => {
-  const session = await context.queryClient.ensureQueryData(
-    sessionQueryDataConfiq,
-  )
-  return session?.user ?? null
-}
 
 export const useAuthCache = () => {
   const router = useRouter()
