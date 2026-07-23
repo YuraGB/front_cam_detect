@@ -7,7 +7,7 @@
   },
   "scripts": {
     "dev": "vite dev --port 3000",
-    "build": "vite build && node -e \"require('node:fs').copyFileSync('instrument.server.mjs','dist/server/instrument.server.mjs')\"",
+    "build": "vite build",
     "preview": "vite preview",
     "prestart": "npm run build",
     "test": "vitest run",
@@ -20,7 +20,10 @@
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
     "db:reset": "rm -f sqlite.db && drizzle-kit migrate",
-    "doctor": "npx react-doctor@latest"
+    "doctor": "npx react-doctor@latest",
+    "patch:nitro": "node scripts/patch-nitro.js",
+    "compile": "bun build .output/server/index.mjs --compile --outfile cam-server",
+    "build:binary": "bun run build && bun run patch:nitro && bun build .output/server/index.mjs --compile --outfile frontend-app"
   },
   "dependencies": {
     "@better-auth/drizzle-adapter": "^1.6.13",
@@ -39,6 +42,7 @@
     "dotenv-cli": "^11.0.0",
     "drizzle-orm": "^0.45.2",
     "lucide-react": "^0.577.0",
+    "nitro": "^3.0.260610-beta",
     "radix-ui": "^1.5.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",

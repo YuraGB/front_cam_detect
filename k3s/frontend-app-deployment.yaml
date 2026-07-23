@@ -1,0 +1,94 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: frontend-app
+  namespace: cam-det
+
+  labels:
+    app: frontend-app
+    app.kubernetes.io/name: frontend-app
+    app.kubernetes.io/part-of: cam-system
+    app.kubernetes.io/managed-by: kubectl
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: frontend-app
+
+  template:
+    metadata:
+      labels:
+        app: frontend-app
+        app.kubernetes.io/name: frontend-app
+        app.kubernetes.io/part-of: cam-system
+        app.kubernetes.io/managed-by: kubectl
+
+    spec:
+      securityContext:
+        runAsUser: 65532
+        runAsGroup: 65532
+        fsGroup: 65532
+
+      volumes:
+        - name: frontend-app-pvc
+          persistentVolumeClaim:
+            claimName: frontend-app-pvc
+
+      containers:
+        - name: frontend-app
+
+          image: docker.io/library/frontend-app:v1
+          imagePullPolicy: Never
+
+          volumeMounts:
+            - name: frontend-app-pvc
+              mountPath: /data
+
+          ports:
+            - name: http
+              containerPort: 3000
+
+          resources:
+            requests:
+              cpu: '250m'
+              memory: '256Mi'
+
+            limits:
+              cpu: '1000m'
+              memory: '1Gi'
+
+          envFrom:
+            - configMapRef:
+                name: frontend-app-config
+            - secretRef:
+                name: frontend-app-secret
+
+          startupProbe:
+            httpGet:
+              path: /health
+              port: 3000
+
+            periodSeconds: 2
+            timeoutSeconds: 1
+            failureThreshold: 15
+
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 3000
+
+            periodSeconds: 5
+            timeoutSeconds: 1
+            failureThreshold: 3
+
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+
+            periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 3

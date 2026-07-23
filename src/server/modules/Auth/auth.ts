@@ -13,9 +13,13 @@ import {
   sessionAdditionalFields,
   userAdditionalFields,
 } from './lib/betterAuthConfigs'
+import { bootstrap } from '#/server/plugins/migrations'
+import { TRUSTED_ORIGINS } from '#/constants'
 
+await bootstrap()
 export const auth = betterAuth({
   baseURL: process.env.BETTER_AUTH_URL || 'http://localhost:3000',
+  trustedOrigins: TRUSTED_ORIGINS,
 
   database: drizzleAdapter(db, {
     provider: 'sqlite',

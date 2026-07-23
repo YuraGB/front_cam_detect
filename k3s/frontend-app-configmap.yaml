@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: ConfigMap
+
+metadata:
+  name: frontend-app-config
+  namespace: cam-det
+
+data:
+  PORT: '3000'
+  LOG_LEVEL: info
+  DB_PATH: /data/db.sqlite
+  DATABASE_URL: /data/auth.sqlite
+  VITE_JWT_ISSUER: better-auth
+  VITE_JWT_AUDIENCE: signaling
+  VITE_SIGNALING_SERVER_URL_WS: ws://signaling.local
+  VITE_SIGNALING_SERVER_URL: http://signaling-service:3002
+  VITE_WEBRTC_TARGET_PEER_ID: camera-cv-service
+  VITE_ICE_SERVERS: stun:stun.l.google.com:19302

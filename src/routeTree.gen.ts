@@ -11,6 +11,8 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as protectedRouteRouteImport } from './routes/(protected)/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as probesReadyRouteImport } from './routes/(probes)/ready'
+import { Route as probesHealthRouteImport } from './routes/(probes)/health'
 import { Route as protectedVideo_streamIndexRouteImport } from './routes/(protected)/video_stream/index'
 import { Route as protectedProfileIndexRouteImport } from './routes/(protected)/profile/index'
 import { Route as protectedDashboardIndexRouteImport } from './routes/(protected)/dashboard/index'
@@ -24,6 +26,16 @@ const protectedRouteRoute = protectedRouteRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const probesReadyRoute = probesReadyRouteImport.update({
+  id: '/(probes)/ready',
+  path: '/ready',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const probesHealthRoute = probesHealthRouteImport.update({
+  id: '/(probes)/health',
+  path: '/health',
   getParentRoute: () => rootRouteImport,
 } as any)
 const protectedVideo_streamIndexRoute =
@@ -55,6 +67,8 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/health': typeof probesHealthRoute
+  '/ready': typeof probesReadyRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/address/': typeof protectedAddressIndexRoute
   '/dashboard/': typeof protectedDashboardIndexRoute
@@ -63,6 +77,8 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/health': typeof probesHealthRoute
+  '/ready': typeof probesReadyRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/address': typeof protectedAddressIndexRoute
   '/dashboard': typeof protectedDashboardIndexRoute
@@ -73,6 +89,8 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/(protected)': typeof protectedRouteRouteWithChildren
+  '/(probes)/health': typeof probesHealthRoute
+  '/(probes)/ready': typeof probesReadyRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/(protected)/address/': typeof protectedAddressIndexRoute
   '/(protected)/dashboard/': typeof protectedDashboardIndexRoute
@@ -83,6 +101,8 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/health'
+    | '/ready'
     | '/api/auth/$'
     | '/address/'
     | '/dashboard/'
@@ -91,6 +111,8 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/health'
+    | '/ready'
     | '/api/auth/$'
     | '/address'
     | '/dashboard'
@@ -100,6 +122,8 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/(protected)'
+    | '/(probes)/health'
+    | '/(probes)/ready'
     | '/api/auth/$'
     | '/(protected)/address/'
     | '/(protected)/dashboard/'
@@ -110,6 +134,8 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   protectedRouteRoute: typeof protectedRouteRouteWithChildren
+  probesHealthRoute: typeof probesHealthRoute
+  probesReadyRoute: typeof probesReadyRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
 }
 
@@ -127,6 +153,20 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(probes)/ready': {
+      id: '/(probes)/ready'
+      path: '/ready'
+      fullPath: '/ready'
+      preLoaderRoute: typeof probesReadyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(probes)/health': {
+      id: '/(probes)/health'
+      path: '/health'
+      fullPath: '/health'
+      preLoaderRoute: typeof probesHealthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/(protected)/video_stream/': {
@@ -188,6 +228,8 @@ const protectedRouteRouteWithChildren = protectedRouteRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   protectedRouteRoute: protectedRouteRouteWithChildren,
+  probesHealthRoute: probesHealthRoute,
+  probesReadyRoute: probesReadyRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
 }
 export const routeTree = rootRouteImport

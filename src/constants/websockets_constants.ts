@@ -1,3 +1,5 @@
+import { SIGNALING_SERVER_URL_WS } from './webrtc_constants'
+
 const HEARTBEAT_INTERVAL_MS = 5000
 const STREAM_INACTIVITY_TIMEOUT_MS = 60000 // 1 minute;
 const RECONNECT_BASE_DELAY_MS = 500
@@ -12,7 +14,7 @@ const STREAM_TYPES = [
   'webrtc',
 ] as const
 
-const STREAM_URLS = ['ws://127.0.0.1:3002/ws?type=webrtc'] as const
+const STREAM_URLS = [SIGNALING_SERVER_URL_WS] as const
 export type StreamType = (typeof STREAM_TYPES)[number]
 export type StreamURL = (typeof STREAM_URLS)[number]
 

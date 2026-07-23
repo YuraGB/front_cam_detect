@@ -20,6 +20,8 @@ export const env = createEnv({
     VITE_SIGNALING_SERVER_URL: z.url().optional(),
     VITE_WEBRTC_TARGET_PEER_ID: z.string().optional(),
     VITE_ICE_SERVERS: z.array(z.string()).optional(),
+    VITE_SIGNALING_SERVER_URL_WS: z.string().optional(),
+    VITE_DATABASE_URL: z.string().optional(),
   },
 
   /**

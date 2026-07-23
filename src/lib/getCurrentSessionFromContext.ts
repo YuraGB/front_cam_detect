@@ -1,8 +1,8 @@
-import { queryOptions } from "@tanstack/react-query"
-import type { QueryClient } from "@tanstack/react-query"
-import { getSessionFn } from "./getSession"
-import type { TExtendedUser } from "#/types"
-import type { Session } from "better-auth"
+import { queryOptions } from '@tanstack/react-query'
+import type { QueryClient } from '@tanstack/react-query'
+import { getSessionFn } from './getSession'
+import type { TExtendedUser } from '#/types'
+import type { Session } from 'better-auth'
 
 export const sessionQueryDataConfiq = queryOptions({
   queryKey: ['session'],
@@ -11,7 +11,7 @@ export const sessionQueryDataConfiq = queryOptions({
   gcTime: Infinity,
 })
 
-export const getCurrentSessionFromContext =async (context: {
+export const getCurrentSessionFromContext = async (context: {
   queryClient: QueryClient
 }): Promise<Session | null> => {
   const session = await context.queryClient.ensureQueryData(
@@ -19,7 +19,6 @@ export const getCurrentSessionFromContext =async (context: {
   )
   return session?.session ?? null
 }
-
 
 export const getCurrentSessionUserFromContext = async (context: {
   queryClient: QueryClient

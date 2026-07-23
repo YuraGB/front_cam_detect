@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+
+metadata:
+  name: tanstack-app
+  namespace: cam-det
+
+spec:
+  ingressClassName: traefik
+
+  rules:
+    - host: cam.local
+
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+
+            backend:
+              service:
+                name: frontend-app
+
+                port:
+                  number: 3000

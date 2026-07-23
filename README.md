@@ -200,3 +200,31 @@ Routes live in [src/routes](/D:/Projects/cam_frontend/cam_frontend/src/routes).
 
 - [C++ camera service](https://github.com/YuraGB/server_for_cam_det)
 - [Signaling server](https://github.com/YuraGB/server_for_cam_det)
+
+## k3s
+
+```bash
+docker build --no-cache -t frontend-app:v1 .
+docker save frontend-app:v1 -o frontend-app-v1.tar
+sudo k3s ctr images import frontend-app-v1.tar
+
+./start.kubernetes.sh
+# or
+#./stop.kubernetes.sh
+
+```
+
+```Bash
+
+  #remove docker image
+  sudo k3s crictl rmi frontend-app:v1
+  # list images
+  sudo k3s crictl images
+  sudo k3s ctr images ls
+
+  # start/apply kubernetes
+  ./start.kubernetes.sh
+
+  # delete stop kubernetes
+  ./stop.kubernetes.sh
+```

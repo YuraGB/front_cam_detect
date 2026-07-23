@@ -1,6 +1,5 @@
 import { getRequestHeaders } from '@tanstack/react-start/server'
 import { createServerFn } from '@tanstack/react-start'
-import { auth } from '#/server/modules/Auth/auth'
 import type { Session } from 'node_modules/better-auth/dist/types/models.d.mts'
 import type { TExtendedUser } from '#/types'
 
@@ -17,7 +16,7 @@ async function getSessionHandler(): Promise<{
   session: Session
 } | null> {
   const headers = getRequestHeaders()
-
+  const { auth } = await import('#/server/modules/Auth/auth')
   const session = await auth.api.getSession({
     headers,
   })

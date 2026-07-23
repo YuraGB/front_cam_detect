@@ -6,6 +6,10 @@ export const SIGNALING_SERVER_URL =
   env.VITE_SIGNALING_SERVER_URL || 'http://localhost:3002'
 export const BETTER_AUTH_URL =
   env.VITE_BETTER_AUTH_URL || 'http://localhost:3000'
+const SIGNALING_BASE_URL_WS =
+  env.VITE_SIGNALING_SERVER_URL_WS ?? 'ws://127.0.0.1:3002'
+
+export const SIGNALING_SERVER_URL_WS = `${SIGNALING_BASE_URL_WS}/ws?type=webrtc`
 
 const ICE_SERVERS: RTCIceServer[] = (Array.isArray(env.VITE_ICE_SERVERS)
   ? env.VITE_ICE_SERVERS.map((iceServer) =>
